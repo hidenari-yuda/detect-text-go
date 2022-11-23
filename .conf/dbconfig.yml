@@ -1,4 +1,0 @@
-local:
-    dialect: mysql
-    datasource: ${DB_USER}:${DB_PASS}@tcp([${DB_HOST}]:${DB_PORT})/${DB_NAME}?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true
-    dir: .migrations

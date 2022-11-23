@@ -2,9 +2,9 @@
 
 *.DS_Store
 
-*/.conf
+/.conf/
 
-*/.public
+/.public/
 
 *.idea
 
