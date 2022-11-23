@@ -61,30 +61,18 @@ func (r *Router) SetUp() *Router {
 	var origins = []string{
 		"http://localhost:9090",
 		"http://localhost:3000",
-		"http://localhost:3001",
-		"http://localhost:3002",
-		"https://dev-api.rechubsearch.jp",
-		"https://dy3pzh8nyoi4a.cloudfront.net", // cloudFront(dev)
-		"https://api.rechubsearch.jp",
-		"https://rechub-search-admin-front.vercel.app",
 	}
 
 	// if r.cfg.App.Env == "local" {
 	// 	origins = []string{
 	// 		"http://localhost:9090",
 	// 		"http://localhost:3000",
-	// 		"http://localhost:3001",
-	// 		"http://localhost:3002",
 	// 	}
 	// } else if r.cfg.App.Env == "dev" {
 	// 	origins = []string{
-	// 		"https://dev-api.rechubsearch.jp",
-	// 		"https://dy3pzh8nyoi4a.cloudfront.net", // cloudFront(dev)
 	// 	}
 	// } else if r.cfg.App.Env == "prd" {
 	// 	origins = []string{
-	// 		"https://api.rechubsearch.jp",
-	// 		"https://rechub-search-admin-front.vercel.app",
 	// 	}
 	// }
 

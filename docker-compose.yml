@@ -29,8 +29,6 @@ services:
       APP_SERVICE: batch
       APP_BATCH_TYPE: butler
       DB_HOST: db
-    # volumes:
-    #   - ./go/src/github.com/Motoyui-inc/rechub-search-server
     depends_on:
       - db
     command: go run main.go
