@@ -15,7 +15,9 @@ type UserHandler interface {
 	SignUp(param *entity.SignUpParam) (presenter.Presenter, error)
 	SignIn(param *entity.SignInParam) (presenter.Presenter, error)
 	GetByFirebaseToken(token string) (presenter.Presenter, error)
-	DetectTextFromJobSeekerResume(filePath string) (presenter.Presenter, error)
+
+	// Line API
+	GetLineWebHook(param *entity.LineWebHookParam) (presenter.Presenter, error)
 }
 
 type UserHandlerImpl struct {
@@ -70,14 +72,13 @@ func (h *UserHandlerImpl) GetByFirebaseToken(token string) (presenter.Presenter,
 	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
 }
 
-func (h *UserHandlerImpl) DetectTextFromJobSeekerResume(filePath string) (presenter.Presenter, error) {
-	output, err := h.UserInteractor.DetectTextFromJobSeekerResume(interactor.DetectTextFromJobSeekerResumeInput{
-		FilePath: filePath,
+func (h *UserHandlerImpl) GetLineWebHook(param *entity.LineWebHookParam) (presenter.Presenter, error) {
+	output, err := h.UserInteractor.GetLineWebHook(interactor.GetLineWebHookInput{
+		Param: param,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return presenter.NewJobSeekerJSONPresenter(responses.NewJobSeeker(output.JobSeeker)), nil
-
+	return presenter.NewOkJSONPresenter(responses.NewOK(output.Ok)), nil
 }

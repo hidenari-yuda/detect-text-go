@@ -16,12 +16,14 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.9.1
+	github.com/line/line-bot-sdk-go/v7 v7.18.0
 	github.com/pkg/errors v0.8.1
 	github.com/rubenv/sql-migrate v1.2.0
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/slack-go/slack v0.11.4
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	google.golang.org/api v0.102.0
+	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/guregu/null.v4 v4.0.0
 )
 
@@ -59,5 +61,5 @@ require (
 	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c // indirect
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

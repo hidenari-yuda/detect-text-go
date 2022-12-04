@@ -91,3 +91,23 @@ func (r *UserRepositoryImpl) GetByFirebaseId(firebaseId string) (*entity.User, e
 
 	return &user, nil
 }
+
+func (r *UserRepositoryImpl) GetByLineUserId(lineUserId string) (*entity.User, error) {
+	var (
+		user entity.User
+	)
+	err := r.executer.Get(
+		"GetByLineUserId",
+		&user,
+		"SELECT * FROM users WHERE line_user_id = ?",
+		lineUserId,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get user by line user id: %w", err)
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &user, nil
+}

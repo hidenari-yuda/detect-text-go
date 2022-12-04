@@ -9,6 +9,7 @@ type Config struct {
 	Sendgrid Sendgrid `required:"true" envconfig:"SENDGRID"`
 	Slack    Slack    `required:"true" envconfig:"SLACK"`
 	Google   Google   `required:"true" envconfig:"GOOGLE"`
+	Line     Line     `required:"true" envconfig:"LINE"`
 }
 
 func New() (Config, error) {
@@ -54,4 +55,9 @@ type Slack struct {
 
 type Google struct {
 	ApplicationCredentials string `required:"true" split_words:"true"`
+}
+
+type Line struct {
+	ChannelSecret      string `required:"true" split_words:"true"`
+	ChannelAccessToken string `required:"true" split_words:"true"`
 }

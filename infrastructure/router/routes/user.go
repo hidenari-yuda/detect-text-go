@@ -9,12 +9,18 @@ import (
 	"github.com/hidenari-yuda/umerun-resume/infrastructure/di"
 	"github.com/hidenari-yuda/umerun-resume/usecase"
 	"github.com/labstack/echo/v4"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type UserRouteFunc interface {
 	SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 	SignIn(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 	GetByFirebaseToken(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+
+	//line
+	GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+
+	// resume
 	UploadResume(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 }
 
@@ -87,40 +93,60 @@ func (r *UserRoutes) GetByFirebaseToken(db *database.DB, firebase usecase.Fireba
 	}
 }
 
-func (r *UserRoutes) DetectTextFromJobSeekerResume(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+// func (r *UserRoutes) GetByLineUserId(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+// 	return func(c echo.Context) error {
+// 		var (
+// 			lineUserId = c.Param("lineUserId")
+// 		)
+
+// 		h := di.InitializeUserHandler(db, firebase)
+// 		presenter, err := h.GetByFirebaseToken(firebaseToken)
+// 		if err != nil {
+// 			return c.JSON(http.StatusInternalServerError, err)
+// 		}
+
+// 		c.JSON(http.StatusOK, presenter)
+// 		return nil
+// 	}
+// }
+
+/************************ line関連 ************************/
+func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
+		req := c.Request()
 
-		// fileParam, err := c.FormFile("file")
-		// if err != nil {
-		// 	wrapped := fmt.Errorf("ファイルの受け取りエラー: %s:%w", err.Error(), entity.ErrRequestError)
-		// 	renderJSON(c, presenter.NewErrorJsonPresenter(wrapped))
-		// 	return wrapped
-		// }
+		bot, err := linebot.New("LINE_SECRET", "LINE_ACCESS_TOKEN")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 
-		// file, err := fileParam.Open()
-		// if err != nil {
-		// 	wrapped := fmt.Errorf("ファイルが開けません: %s:%w", err.Error(), entity.ErrRequestError)
-		// 	renderJSON(c, presenter.NewErrorJsonPresenter(wrapped))
-		// 	return wrapped
-		// }
+		// Webhookイベントオブジェクトの取得
+		// 参考: https://developers.line.biz/ja/reference/messaging-api/#webhook-event-objects
+		events, err := bot.ParseRequest(req)
+		if err != nil {
+			if err == linebot.ErrInvalidSignature {
+				fmt.Println("c.Response().WriteHeader(400)")
+				c.Response().WriteHeader(400)
+				return err
+			} else {
+				fmt.Println("c.Response().WriteHeader(500)")
+				c.Response().WriteHeader(500)
+				return err
+			}
+		}
 
-		// fmt.Println(fileParam.Filename)
-		// fmt.Println(fileParam.Size)
-		// fmt.Println(fileParam.Header)
-
-		// defer file.Close()
-
-		filePath := "../../../.public/images/townwork_template.png"
-
-		// filePath := fmt.Sprintf("%v-%v.png", time.Now(), fileParam.Filename)
-
-		// ioutil.WriteFile(filePath, []byte(file), 0644)
+		param := &entity.LineWebHookParam{
+			Bot:    bot,
+			Events: events,
+		}
 
 		h := di.InitializeUserHandler(db, firebase)
-		presenter, err := h.DetectTextFromJobSeekerResume(filePath)
+		presenter, err := h.GetLineWebHook(param)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err)
 		}
+
 		c.JSON(http.StatusOK, presenter)
 		return nil
 	}

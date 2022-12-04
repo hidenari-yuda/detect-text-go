@@ -1,0 +1,1 @@
+detect text by using google OCR and some functions

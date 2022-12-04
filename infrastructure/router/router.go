@@ -141,16 +141,15 @@ func (r *Router) SetUp() *Router {
 		// ユーザーのログイン
 		noAuthAPI.PUT("/signin", userRoutes.SignIn(db, firebase))
 
-		noAuthAPI.POST("/detect/resume/job_seeker", userRoutes.DetectTextFromJobSeekerResume(db, firebase))
-
 	}
 
 	/****************************************************************************************/
 	/// UserAPI
 	//
-	// userAPI := noAuthAPI.Group("/user")
+	userAPI := noAuthAPI.Group("/user")
 	{
 		// ユーザーのログイン
+		userAPI.GET("/line_user_id", userRoutes.SignIn(db, firebase))
 
 	}
 

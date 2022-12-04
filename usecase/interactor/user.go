@@ -1,16 +1,11 @@
 package interactor
 
 import (
-	"context"
 	"fmt"
-	"io"
-	"os"
-	"reflect"
 
-	vision "cloud.google.com/go/vision/apiv1"
 	"github.com/hidenari-yuda/umerun-resume/domain/entity"
 	"github.com/hidenari-yuda/umerun-resume/usecase"
-	"gopkg.in/guregu/null.v4"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 type UserInteractor interface {
@@ -18,7 +13,12 @@ type UserInteractor interface {
 	SignUp(input SignUpInput) (output SignUpOutput, err error)
 	SignIn(input SignInInput) (output SignInOutput, err error)
 	GetByFirebaseToken(input GetByFirebaseTokenInput) (output GetByFirebaseTokenOutput, err error)
-	DetectTextFromJobSeekerResume(input DetectTextFromJobSeekerResumeInput) (DetectTextFromJobSeekerResumeOutput, error)
+	GetByLineUserId(input GetByLineUserIdInput) (output GetByLineUserIdOutput, err error)
+
+	// line
+	GetLineWebHook(input GetLineWebHookInput) (output GetLineWebHookOutput, err error)
+
+	// resume
 }
 
 type UserInteractorImpl struct {
@@ -112,131 +112,192 @@ func (i *UserInteractorImpl) GetByFirebaseToken(input GetByFirebaseTokenInput) (
 	return output, nil
 }
 
-type DetectTextFromJobSeekerResumeInput struct {
-	FilePath string
+type GetByLineUserIdInput struct {
+	LineUserId string
 }
 
-type DetectTextFromJobSeekerResumeOutput struct {
-	JobSeeker *entity.JobSeeker
+type GetByLineUserIdOutput struct {
+	User *entity.User
 }
 
-func (i *UserInteractorImpl) DetectTextFromJobSeekerResume(input DetectTextFromJobSeekerResumeInput) (output DetectTextFromJobSeekerResumeOutput, err error) {
-	// io.Writer
-	w := io.Writer(os.Stdout)
+func (i *UserInteractorImpl) GetByLineUserId(input GetByLineUserIdInput) (output GetByLineUserIdOutput, err error) {
 
-	ctx := context.Background()
-
-	client, err := vision.NewImageAnnotatorClient(ctx)
+	output.User, err = i.userRepository.GetByLineUserId(input.LineUserId)
 	if err != nil {
 		return output, err
 	}
 
-	file := ".public/images/townwork_template.webp"
-
-	f, err := os.Open(file)
-	if err != nil {
-		return output, err
-	}
-	defer f.Close()
-
-	image, err := vision.NewImageFromReader(f)
-	if err != nil {
-		return output, err
-	}
-	annotations, err := client.DetectTexts(ctx, image, nil, 10)
-	if err != nil {
-		return output, err
-	}
-
-	if len(annotations) == 0 {
-		fmt.Fprintln(w, "No text found.")
-		return output, err
-	}
-
-	var jobSeeker *entity.JobSeeker
-
-	for i, _ := range annotations {
-		fmt.Fprintf(w, "%q\n", annotations[i].Description)
-
-		if Contains(NameCheckerList, annotations[i].Description) && !(Contains(NameCheckerList, annotations[i+1].Description)) {
-			jobSeeker.Name = annotations[i+1].Description
-		}
-
-		for _, birthdayChecker := range BirthdayCheckerList {
-			if annotations[i].Description == birthdayChecker {
-				jobSeeker.Birthday = annotations[i+1].Description
-			}
-		}
-
-		if annotations[i].Description == "性別" {
-			if annotations[i+1].Description == "男" {
-				jobSeeker.Gender = null.NewInt(0, true)
-			} else if annotations[i+1].Description == "女" {
-				jobSeeker.Gender = null.NewInt(1, true)
-			}
-		}
-
-	}
-
-	fmt.Println("detected text is:", jobSeeker)
-
-	output.JobSeeker = jobSeeker
+	fmt.Println("exported user is:", output.User)
 
 	return output, nil
 }
 
-var NameCheckerList []string = []string{
-	"氏名",
-	"氏",
-	"名",
-	"名前",
-	"お名前",
-	"ご氏名",
+type GetLineWebHookInput struct {
+	Param *entity.LineWebHookParam
 }
 
-var FuriganaCheckerList []string = []string{
-	"フリガナ",
-	"ふりがな",
+type GetLineWebHookOutput struct {
+	Ok bool
 }
 
-var BirthdayCheckerList []string = []string{
-	"生年月日",
-	"誕生日",
-	"生年月",
-	"生年",
-	"生月日",
-	"生月",
-	"生日",
-}
+func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output GetLineWebHookOutput, err error) {
 
-func Contains(list interface{}, elem interface{}) bool {
-	listV := reflect.ValueOf(list)
+	for _, event := range input.Param.Events {
+		fmt.Println("event", event)
+		fmt.Println("送信者のID", event.Source.UserID)
 
-	if listV.Kind() == reflect.Slice {
-		for i := 0; i < listV.Len(); i++ {
-			item := listV.Index(i).Interface()
-			// 型変換可能か確認する
-			if !reflect.TypeOf(elem).ConvertibleTo(reflect.TypeOf(item)) {
-				continue
-			}
-			// 型変換する
-			target := reflect.ValueOf(elem).Convert(reflect.TypeOf(item)).Interface()
-			// 等価判定をする
-			if ok := reflect.DeepEqual(item, target); ok {
-				return true
+		if event.Type == linebot.EventTypeMessage {
+			switch message := event.Message.(type) {
+			// テキストメッセージの場合
+			case *linebot.TextMessage:
+				fmt.Println("message", message)
+
+				fmt.Println("TextMessage")
+				fmt.Println("----------------")
+				// if _, err := bot.ReplyMessage(
+				// 	event.ReplyToken,
+				// 	linebot.NewTextMessage(message.Text),
+				// ).Do(); err != nil {
+				// 	fmt.Println(err)
+				// 	fmt.Println("EventTypeMessageのReplyMessageでエラー")
+				// }
+				// DBにメッセージを保存する処理
+
+				// event.Message.(*linebot.TextMessage).Text,
+
+			// スタンプの場合
+			case *linebot.StickerMessage:
+				fmt.Println("message", message)
+
+				fmt.Println("StickerMessage")
+				fmt.Println("----------------")
+				// if _, err := bot.ReplyMessage(
+				// 	event.ReplyToken,
+				// 	linebot.NewStickerMessage(11111, 11111),
+				// ).Do(); err != nil {
+				// 	fmt.Println(err)
+				// 	fmt.Println("StickerMessageのReplyMessageでエラー")
+				// }
+
+			// 画像データの場合
+			case *linebot.ImageMessage:
+				fmt.Println("message", message)
+				fmt.Println("ImageMessage")
+				fmt.Println("message.ContentProvider.Type", message.ContentProvider.Type)
+				fmt.Println("----------------")
+
+				// コンテンツ取得
+				bot, err := linebot.New("LINE_SECRET", "LINE_ACCESS_TOKEN")
+				if err != nil {
+					fmt.Println(err)
+					fmt.Println("linebot.Newでエラー")
+				}
+				content, err := bot.GetMessageContent(message.ID).Do()
+				if err != nil {
+					fmt.Println(err)
+					fmt.Println("GetMessageContentでエラー")
+				}
+				defer content.Content.Close()
+				fmt.Println("content.Content", content.Content)
+
+				// レシートか判定
+				info, err := checkReceipt(content.Content)
+				if err != nil {
+					fmt.Println(err)
+					fmt.Println("detectReceiptでエラー")
+					_, err = bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(fmt.Sprint("画像を受け取りました")),
+					).Do()
+					if err != nil {
+						fmt.Println(err)
+						fmt.Println("ImageMessageのReplyMessageでエラー")
+					}
+				}
+
+				fmt.Println("info", info)
+
+				_, err = bot.ReplyMessage(
+					event.ReplyToken,
+					linebot.NewTextMessage(fmt.Sprintf(
+						"レシートを受け取りました\n\n    %v円をプレゼントします！\n\n  まだ未登録の方は、下記のリンクから登録してください！\n\n    https://www.google.com",
+						"値段",
+					)),
+				).Do()
+				if err != nil {
+					fmt.Println(err)
+					fmt.Println("ImageMessageのReplyMessageでエラー")
+				}
+
+				// message.OriginalContentURL,
+				// message.PreviewImageURL,
+			// 動画データの場合
+			case *linebot.VideoMessage:
+				fmt.Println("message", message)
+
+				fmt.Println("VideoMessage")
+				fmt.Println("----------------")
+				// if _, err := bot.ReplyMessage(
+				// 	event.ReplyToken,
+				// 	linebot.NewVideoMessage(message.OriginalContentURL, message.PreviewImageURL),
+				// ).Do(); err != nil {
+				// 	fmt.Println(err)
+				// 	fmt.Println("VideoMessageのReplyMessageでエラー")
+				// }
+				// DBにメッセージを保存する処理
+
+				// message.OriginalContentURL,
+				// message.PreviewImageURL,
+
+			// 音声データの場合
+			case *linebot.AudioMessage:
+				fmt.Println("message", message)
+
+				fmt.Println("AudioMessage")
+				fmt.Println("----------------")
+				// if _, err := bot.ReplyMessage(
+				// 	event.ReplyToken,
+				// 	linebot.NewAudioMessage(message.OriginalContentURL, message.Duration),
+				// ).Do(); err != nil {
+				// 	fmt.Println(err)
+				// 	fmt.Println("AudioMessageのReplyMessageでエラー")
+				// }
+				// DBにメッセージを保存する処理
+
+				// message.OriginalContentURL,
+
+				// null.NewInt(int64(message.Duration), true),
+
 			}
 		}
 	}
-	return false
+
+	output.Ok = true
+
+	return output, nil
+
 }
 
-func Includes(list, checkList []string) string {
-	for _, v := range list {
-		for _, c := range checkList {
-			if v == c {
-				return v
-			}
-		}
-	}
-	return ""
-}
+// コンテンツ取得
+// bot, err := linebot.New(<channel secret>, <channel token>)
+// if err != nil {
+// 	...
+// }
+// content, err := bot.GetMessageContent(<messageID>).Do()
+// if err != nil {
+// 	...
+// }
+// defer content.Content.Close()
+
+// プロフィール情報取得
+// bot, err := linebot.New(<channel secret>, <channel token>)
+// if err != nil {
+// 	...
+// }
+// res, err := bot.GetProfile(<userId>).Do();
+// if err != nil {
+// 	...
+// }
+// println(res.DisplayName)
+// println(res.PictureURL)
+// println(res.StatusMessage)
