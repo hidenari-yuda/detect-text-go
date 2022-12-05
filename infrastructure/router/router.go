@@ -127,7 +127,9 @@ func (r *Router) SetUp() *Router {
 	/// No Auth API
 	//
 
-	userRoutes := routes.UserRoutes{}
+	var (
+		userRoutes = routes.UserRoutes{}
+	)
 
 	noAuthAPI := api.Group("api")
 	{
@@ -140,6 +142,8 @@ func (r *Router) SetUp() *Router {
 
 		// ユーザーのログイン
 		noAuthAPI.PUT("/signin", userRoutes.SignIn(db, firebase))
+
+		noAuthAPI.POST("/line", userRoutes.GetLineWebHook(db, firebase))
 
 	}
 

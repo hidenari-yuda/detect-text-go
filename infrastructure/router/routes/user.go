@@ -12,21 +12,12 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-type UserRouteFunc interface {
-	SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
-	SignIn(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
-	GetByFirebaseToken(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+type UserRoutes struct{}
 
-	//line
-	GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
-
-	// resume
-	UploadResume(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
-}
-
-type UserRoutes struct {
-	UserRouteFunc
-}
+// 	SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+// 	SignIn(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+// 	GetByFirebaseToken(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+// 	GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 
 func (r *UserRoutes) SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
@@ -93,22 +84,22 @@ func (r *UserRoutes) GetByFirebaseToken(db *database.DB, firebase usecase.Fireba
 	}
 }
 
-// func (r *UserRoutes) GetByLineUserId(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
-// 	return func(c echo.Context) error {
-// 		var (
-// 			lineUserId = c.Param("lineUserId")
-// 		)
+func (r *UserRoutes) GetByLineUserId(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			lineUserId = c.Param("lineUserId")
+		)
 
-// 		h := di.InitializeUserHandler(db, firebase)
-// 		presenter, err := h.GetByFirebaseToken(firebaseToken)
-// 		if err != nil {
-// 			return c.JSON(http.StatusInternalServerError, err)
-// 		}
+		h := di.InitializeUserHandler(db, firebase)
+		presenter, err := h.GetByLineUserId(lineUserId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
 
-// 		c.JSON(http.StatusOK, presenter)
-// 		return nil
-// 	}
-// }
+		c.JSON(http.StatusOK, presenter)
+		return nil
+	}
+}
 
 /************************ line関連 ************************/
 func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
@@ -133,6 +124,13 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 				fmt.Println("c.Response().WriteHeader(500)")
 				c.Response().WriteHeader(500)
 				return err
+			}
+		}
+		// events[0].Message.(*linebot.ImageMessage).Message != nil
+		if events[0].Type == linebot.EventTypeMessage {
+			switch events[0].Message.(type) {
+			case *linebot.ImageMessage:
+				_, err = bot.ReplyMessage(events[0].ReplyToken, linebot.NewTextMessage("確認中...")).Do()
 			}
 		}
 

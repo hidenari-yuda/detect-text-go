@@ -12,14 +12,14 @@ import (
 	"github.com/hidenari-yuda/umerun-resume/domain/entity"
 )
 
-func checkReceipt(content io.ReadCloser) (uint, error) {
+func checkReceipt(content io.ReadCloser, receiptPictures []*entity.ReceiptPicture) (uint, error) {
 
 	byteData, err := io.ReadAll(content)
 	if err != nil {
 		return 0, err
 	}
 
-	filePath := fmt.Sprint(time.Now().UnixNano(), "-receipt.jpg")
+	filePath := fmt.Sprint("./public/snapshot/", time.Now(), "-receipt.jpg") // ファイル名をユニークにする
 
 	os.WriteFile(filePath, byteData, 0644)
 
@@ -53,9 +53,15 @@ func checkReceipt(content io.ReadCloser) (uint, error) {
 		return 0, err
 	}
 
-	var receipt *entity.Receipt
+	var receiptPicture *entity.ReceiptPicture
 
-	receipt.DetectedText = annotations[0].Description
+	receiptPicture.DetectedText = annotations[0].Description
+
+	for _, v := range receiptPictures {
+		if receiptPicture.DetectedText == v.DetectedText {
+			return 0, err
+		}
+	}
 
 	// "ホーム", "お知らせ", "出品", "支払い", "マイページ", // mercari
 	// "取引履歴", "PayPay", // paypay
@@ -87,11 +93,11 @@ func checkReceipt(content io.ReadCloser) (uint, error) {
 	)
 
 	if strMap["支払い履歴"] || strMap["過去1ヶ月"] {
-		receipt.Service = 0
+		receiptPicture.Service = 0
 	} else if strMap["取引履歴"] || strMap["PayPay"] {
-		receipt.Service = 1
+		receiptPicture.Service = 1
 	} else if strMap["出品"] || strMap["毎月のご利用状況"] {
-		receipt.Service = 2
+		receiptPicture.Service = 2
 	}
 
 	// strings.Contains(annotations[0].Description, "合計", "円", "¥")
@@ -118,7 +124,11 @@ func checkReceipt(content io.ReadCloser) (uint, error) {
 	}
 
 	len := len(annotations)
-	receipt.GiftPrice = uint(len)
+	gift := &entity.Gift{
+		Price: uint(len),
+	}
+
+	fmt.Println("len is:", gift)
 
 	// dbに保存
 	return 0, nil

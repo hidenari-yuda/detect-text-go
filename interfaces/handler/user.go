@@ -15,6 +15,7 @@ type UserHandler interface {
 	SignUp(param *entity.SignUpParam) (presenter.Presenter, error)
 	SignIn(param *entity.SignInParam) (presenter.Presenter, error)
 	GetByFirebaseToken(token string) (presenter.Presenter, error)
+	GetByLineUserId(lineUserId string) (presenter.Presenter, error)
 
 	// Line API
 	GetLineWebHook(param *entity.LineWebHookParam) (presenter.Presenter, error)
@@ -62,6 +63,19 @@ func (h *UserHandlerImpl) SignIn(param *entity.SignInParam) (presenter.Presenter
 func (h *UserHandlerImpl) GetByFirebaseToken(token string) (presenter.Presenter, error) {
 	output, err := h.UserInteractor.GetByFirebaseToken(interactor.GetByFirebaseTokenInput{
 		Token: token,
+	})
+
+	if err != nil {
+		// c.JSON(c, presenter.NewErrorJsonPresenter(err))
+		return nil, err
+	}
+
+	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
+}
+
+func (h *UserHandlerImpl) GetByLineUserId(lineUserId string) (presenter.Presenter, error) {
+	output, err := h.UserInteractor.GetByLineUserId(interactor.GetByLineUserIdInput{
+		LineUserId: lineUserId,
 	})
 
 	if err != nil {

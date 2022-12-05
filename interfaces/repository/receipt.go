@@ -108,3 +108,31 @@ func (r *ReceiptRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entit
 
 	return ReceiptList, nil
 }
+
+// 今日登録されたレシートのリストを取得する
+func (r *ReceiptRepositoryImpl) GetListByToday(lineUserId string) ([]*entity.Receipt, error) {
+	var (
+		ReceiptList []*entity.Receipt
+	)
+	err := r.executer.Select(
+		"GetByLineReceiptId",
+		&ReceiptList, `
+		SELECT * 
+		FROM receipts 
+		WHERE user_id = (
+			SELECT id
+			FROM users
+			WHERE line_user_id = ?
+		)
+		AND DATE(created_at) = CURDATE()`,
+		lineUserId,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get Receipt by line Receipt id: %w", err)
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return ReceiptList, nil
+}

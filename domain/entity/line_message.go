@@ -9,6 +9,7 @@ import (
 type LineMessage struct {
 	Id                 uint      `db:"id" json:"id"`
 	UserId             uint      `db:"user_id" json:"user_id"`
+	LineUserId         string    `db:"line_user_id" json:"line_user_id"`
 	MessageType        uint      `db:"message_type" json:"message_type"`                 // 0: text, 1: image, 2: video, 3: audio, 4: file, 5: location, 6: sticker, 7: contact (default: 0)
 	TextMessage        string    `db:"text_message" json:"text_message"`                 // メッセージ
 	PackageID          string    `db:"package_id" json:"package_id"`                     // スタンプの表示に使用するID

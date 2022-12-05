@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS gifts (
   id INT NOT NULL AUTO_INCREMENT UNIQUE,
   uuid VARCHAR(36) NOT NULL UNIQUE,
   user_id INT NOT NULL,
-  receipt_id INT NOT NULL,
+  receipt_picture_id INT NOT NULL,
   payment_method INT NOT NULL,
   yen INT NOT NULL DEFAULT 0,
   gift_url VARCHAR(255) NOT NULL,

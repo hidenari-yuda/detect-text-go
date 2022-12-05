@@ -4,10 +4,13 @@ import "github.com/google/wire"
 
 var WireSet = wire.NewSet(
 	NewUserRepositoryImpl,
-	NewReceiptRepositoryImpl,
-	NewParchasedItemRepositoryImpl,
+	NewLineMessageRepositoryImpl,
 	NewGiftRepositoryImpl,
 	NewPaymentMethodRepositoryImpl,
 	NewAspRepositoryImpl,
-	NewLineMessageRepositoryImpl,
+
+	// レシート関連
+	NewReceiptPictureRepositoryImpl,
+	NewReceiptRepositoryImpl,
+	NewParchasedItemRepositoryImpl,
 )

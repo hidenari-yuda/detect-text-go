@@ -26,12 +26,22 @@ type LineMessageRepository interface {
 	GetListByLineUserId(lineUserId string) ([]*entity.LineMessage, error)
 }
 
+type ReceiptPictureRepository interface {
+	// Gest API
+	Create(param *entity.ReceiptPicture) error
+	GetById(id uint) (*entity.ReceiptPicture, error)
+	// GetListByUserId(userId uint) ([]*entity.ReceiptPicture, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.ReceiptPicture, error)
+	GetListByToday(lineUserId string) ([]*entity.ReceiptPicture, error)
+}
+
 type ReceiptRepository interface {
 	// Gest API
 	Create(param *entity.Receipt) error
 	GetById(id uint) (*entity.Receipt, error)
 	// GetListByUserId(userId uint) ([]*entity.Receipt, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.Receipt, error)
+	GetListByToday(lineUserId string) ([]*entity.Receipt, error) // 今日登録されたレシートのリストを取得する
 }
 
 type ParchasedItemRepository interface {
