@@ -5,11 +5,11 @@ package di
 
 import (
 	"github.com/google/wire"
-	"github.com/hidenari-yuda/umerun-resume/interfaces"
-	"github.com/hidenari-yuda/umerun-resume/interfaces/handler"
-	"github.com/hidenari-yuda/umerun-resume/interfaces/repository"
-	"github.com/hidenari-yuda/umerun-resume/usecase"
-	"github.com/hidenari-yuda/umerun-resume/usecase/interactor"
+	"github.com/hidenari-yuda/detect-text/interfaces"
+	"github.com/hidenari-yuda/detect-text/interfaces/handler"
+	"github.com/hidenari-yuda/detect-text/interfaces/repository"
+	"github.com/hidenari-yuda/detect-text/usecase"
+	"github.com/hidenari-yuda/detect-text/usecase/interactor"
 )
 
 var wireSet = wire.NewSet(

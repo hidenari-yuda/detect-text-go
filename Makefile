@@ -1,6 +1,6 @@
 OS=linux
 ARCH=amd64
-ROOT=$(GOPATH)/src/github.com/hidenari-yuda/umerun-resume
+ROOT=$(GOPATH)/src/github.com/hidenari-yuda/detect-text
 
 setup:
 	go install -v github.com/google/wire/cmd/wire@v0.5.0
@@ -52,7 +52,7 @@ test-all:
 	# make entity-test
 
 repository-test:
-	DB_NAME=umerun_resume_test go test -v ./tests/repository/*_test.go
+	DB_NAME=detect_text_test go test -v ./tests/repository/*_test.go
 
 #entity-test:
 	#go test -v ./tests/entity/*_test.go

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/hidenari-yuda/umerun-resume/interfaces/presenter"
+	"github.com/hidenari-yuda/detect-text/interfaces/presenter"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
 )

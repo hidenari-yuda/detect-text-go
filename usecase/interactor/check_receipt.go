@@ -9,7 +9,7 @@ import (
 	"time"
 
 	vision "cloud.google.com/go/vision/apiv1"
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
 )
 
 func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPicture) (*entity.ReceiptPicture, *entity.Present, error) {

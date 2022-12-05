@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
-	"github.com/hidenari-yuda/umerun-resume/domain/utility"
-	"github.com/hidenari-yuda/umerun-resume/interfaces"
-	"github.com/hidenari-yuda/umerun-resume/usecase"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/detect-text/domain/utility"
+	"github.com/hidenari-yuda/detect-text/interfaces"
+	"github.com/hidenari-yuda/detect-text/usecase"
 )
 
 type ParchasedItemRepositoryImpl struct {

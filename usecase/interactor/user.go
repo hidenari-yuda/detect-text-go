@@ -3,8 +3,8 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
-	"github.com/hidenari-yuda/umerun-resume/usecase"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/detect-text/usecase"
 )
 
 type UserInteractor interface {

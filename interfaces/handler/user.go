@@ -3,11 +3,11 @@ package handler
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
-	"github.com/hidenari-yuda/umerun-resume/domain/entity/responses"
-	"github.com/hidenari-yuda/umerun-resume/interfaces/presenter"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/detect-text/domain/entity/responses"
+	"github.com/hidenari-yuda/detect-text/interfaces/presenter"
 
-	"github.com/hidenari-yuda/umerun-resume/usecase/interactor"
+	"github.com/hidenari-yuda/detect-text/usecase/interactor"
 )
 
 type UserHandler interface {

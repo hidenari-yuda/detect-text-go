@@ -17,7 +17,7 @@ jobs:
         character set server: 'utf8mb4'
         collation server: 'utf8mb4_general_ci'
         mysql version: '8.0.20'
-        mysql database: 'umerun_resume_test'
+        mysql database: 'detect_text_test'
         mysql root password: 'password'
 
     - name: Set up Go 1.18

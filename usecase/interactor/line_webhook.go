@@ -3,8 +3,8 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/config"
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
+	"github.com/hidenari-yuda/detect-text/domain/config"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 

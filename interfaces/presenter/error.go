@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/hidenari-yuda/umerun-resume/domain/entity"
+import "github.com/hidenari-yuda/detect-text/domain/entity"
 
 type ErrorJsonPresenter struct {
 	PresenterImpl

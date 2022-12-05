@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/config"
-	"github.com/hidenari-yuda/umerun-resume/infrastructure/database"
-	"github.com/hidenari-yuda/umerun-resume/infrastructure/driver"
-	"github.com/hidenari-yuda/umerun-resume/infrastructure/router/routes"
+	"github.com/hidenari-yuda/detect-text/domain/config"
+	"github.com/hidenari-yuda/detect-text/infrastructure/database"
+	"github.com/hidenari-yuda/detect-text/infrastructure/driver"
+	"github.com/hidenari-yuda/detect-text/infrastructure/router/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

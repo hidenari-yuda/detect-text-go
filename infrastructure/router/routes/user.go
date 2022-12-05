@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hidenari-yuda/umerun-resume/domain/config"
-	"github.com/hidenari-yuda/umerun-resume/domain/entity"
-	"github.com/hidenari-yuda/umerun-resume/infrastructure/database"
-	"github.com/hidenari-yuda/umerun-resume/infrastructure/di"
-	"github.com/hidenari-yuda/umerun-resume/usecase"
+	"github.com/hidenari-yuda/detect-text/domain/config"
+	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/detect-text/infrastructure/database"
+	"github.com/hidenari-yuda/detect-text/infrastructure/di"
+	"github.com/hidenari-yuda/detect-text/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )

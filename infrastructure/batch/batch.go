@@ -1,6 +1,6 @@
 package batch
 
-import "github.com/hidenari-yuda/umerun-resume/domain/config"
+import "github.com/hidenari-yuda/detect-text/domain/config"
 
 type Batch struct {
 	cfg config.Config

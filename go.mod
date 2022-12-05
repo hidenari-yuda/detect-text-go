@@ -1,4 +1,4 @@
-module github.com/hidenari-yuda/umerun-resume
+module github.com/hidenari-yuda/detect-text
 
 go 1.18
 

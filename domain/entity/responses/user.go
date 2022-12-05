@@ -1,6 +1,6 @@
 package responses
 
-import "github.com/hidenari-yuda/umerun-resume/domain/entity"
+import "github.com/hidenari-yuda/detect-text/domain/entity"
 
 type User struct {
 	User *entity.User `json:"user"`
