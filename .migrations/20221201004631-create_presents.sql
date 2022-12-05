@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS presents (
   uuid VARCHAR(36) NOT NULL UNIQUE,
   user_id INT NOT NULL,
   receipt_picture_id INT NOT NULL,
-  service INT NOT NULL,
+  payment_service INT NOT NULL DEFAULT 0,
   price INT NOT NULL DEFAULT 0,
   url VARCHAR(255) NOT NULL,
   expirary DATETIME NOT NULL,

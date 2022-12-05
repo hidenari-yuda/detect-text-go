@@ -36,9 +36,14 @@ const (
 type PaymentService uint
 
 const (
-	payPay PaymentService = iota
-	linePay
-	mercariPay
-	amazonPay
-	rakutenPay
+	PayPay PaymentService = iota
+	LinePay
+	MercariPay
+	AmazonPay
+	RakutenPay
+	Docomo
+	AuPay
+	FamiPay
+	Cash
+	NullPaymentService = 99
 )

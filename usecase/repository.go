@@ -55,8 +55,9 @@ type ParchasedItemRepository interface {
 type PresentRepository interface {
 	// Gest API
 	Create(param *entity.Present) error
+	Update(param *entity.Present) error
 	GetById(id uint) (*entity.Present, error)
-	GetByPrice(price uint) ([]*entity.Present, error)
+	GetByPriceAndService(present *entity.Present) ([]*entity.Present, error)
 	// GetListByUserId(userId uint) ([]*entity.Present, error)
 	GetListByReceiptId(receiptId uint) ([]*entity.Present, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.Present, error)

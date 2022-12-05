@@ -63,7 +63,7 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 
 				// レシートか判定
 
-				receiptPicture, presenet, err := checkReceipt(content.Content, receiptPictures)
+				receiptPicture, presentPrice, err := checkReceipt(content.Content, receiptPictures)
 				if err != nil {
 
 					if _, err = input.Param.Bot.ReplyMessage(
@@ -92,26 +92,28 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 				}
 
 				// プレゼントを取得
-				present, err := i.presentRepository.GetByPrice(presenet.Price)
-				if err != nil || present == nil {
+				presentList, err := i.presentRepository.GetByPriceAndService(presentPrice)
+				if err != nil || len(presentList) == 0 {
 					cfg, err := config.New()
 					botToAdmin, err := linebot.New(
 						cfg.Line.ChannelSecret,
 						cfg.Line.ChannelAccessToken,
 					)
+
 					if _, eff := botToAdmin.PushMessage(
 						cfg.Line.AdminUserId,
 						linebot.NewTextMessage(
 							fmt.Sprintf(
-								"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。",
+								"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
 								user.LineName,
 								user.StatusMessage,
-								presenet.Price,
-								convertPaymentServiceToStr(presenet.PaymentService),
+								presentPrice.Price,
+								convertPaymentServiceToStr(presentPrice.PaymentService),
+								err,
 							),
 						),
 					).Do(); eff != nil {
-						return output, fmt.Errorf("プレゼント取得エラー: %w", err)
+						return output, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
 					}
 					return output, fmt.Errorf("プレゼントの取得エラー: %w", err)
 				}
@@ -119,8 +121,10 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 				if _, err = input.Param.Bot.ReplyMessage(
 					event.ReplyToken,
 					linebot.NewTextMessage(fmt.Sprintf(
-						"レシートを受け取りました\n\n    %v円をプレゼントします！\n\n  まだ未登録の方は、下記のリンクから登録してください！\n\n    https://www.google.com",
-						"値段",
+						"チェックが完了したトン！\n\n    %v円分のプレゼントを%vで送るトン！\n\n  以下のリンクから受け取ってね！\n\n    %v",
+						presentPrice.Price,
+						convertPaymentServiceToStr(presentPrice.PaymentService),
+						presentList[0].Url,
 					)),
 				).Do(); err != nil {
 					return output, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
@@ -133,7 +137,16 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 				}
 
 				// ギフトをdbに保存する
-				err = i.presentRepository.Create(&entity.Present{})
+				err = i.presentRepository.Update(&entity.Present{
+					Id:               presentList[0].Id,
+					UserId:           user.Id,
+					ReceiptPictureId: receiptPicture.Id,
+					Price:            presentPrice.Price,
+					PaymentService:   presentList[0].PaymentService,
+					Url:              presentList[0].Url,
+				})
+
+				fmt.Println("image function is ok!!")
 
 				/********** 画像メッセージ以外の場合 **********/
 			// テキストメッセージの場合
@@ -196,45 +209,19 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 }
 
 func convertPaymentServiceToStr(paymentService entity.PaymentService) string {
-	// switch paymentService {
-	// case entity.paypay:
-	// 	return "楽天"
-	// case entity.PaymentServicePayPay:
-	// 	return "PayPay"
-	// case entity.PaymentServiceLinePay:
-	// 	return "LINE Pay"
-	// case entity.PaymentServiceYahoo:
-	// 	return "Yahoo!ショッピング"
-	// case entity.PaymentServiceAmazon:
-	// 	return "Amazon"
-	// case entity.PaymentServiceOther:
-	// 	return "その他"
-	// default:
-	// 	return "不明"
-	// }
-	return "不明"
+	switch paymentService {
+	case entity.PayPay:
+		return "PayPay"
+	case entity.LinePay:
+		return "LINE Pay"
+	case entity.MercariPay:
+		return "メルペイ"
+	case entity.Cash:
+		return "現金"
+	case entity.AmazonPay:
+		return "Amazon Pay"
+	case entity.RakutenPay:
+		return "楽天ペイ"
+	}
+	return "PayPay"
 }
-
-// コンテンツ取得
-// bot, err := linebot.New(<channel secret>, <channel token>)
-// if err != nil {
-// 	...
-// }
-// content, err := bot.GetMessageContent(<messageID>).Do()
-// if err != nil {
-// 	...
-// }
-// defer content.Content.Close()
-
-// プロフィール情報取得
-// bot, err := linebot.New(<channel secret>, <channel token>)
-// if err != nil {
-// 	...
-// }
-// res, err := bot.GetProfile(<userId>).Do();
-// if err != nil {
-// 	...
-// }
-// println(res.DisplayName)
-// println(res.PictureURL)
-// println(res.StatusMessage)

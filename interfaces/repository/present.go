@@ -63,6 +63,34 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 	return nil
 }
 
+// Update
+func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
+	_, err := r.executer.Exec(
+		"UpdatePresent",
+		`UPDATE Presents
+		SET
+			user_id = ?,
+			receipt_picture_id = ?,
+			price = ?,
+			payment_service = ?,
+			updated_at = ?
+		WHERE
+			id = ?`,
+		present.UserId,
+		present.ReceiptPictureId,
+		present.Price,
+		present.PaymentService,
+		time.Now(),
+		present.Id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
 	var (
 		present entity.Present
@@ -83,19 +111,21 @@ func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
 	return &present, nil
 }
 
-func (r *PresentRepositoryImpl) GetByPrice(price uint) ([]*entity.Present, error) {
+func (r *PresentRepositoryImpl) GetByPriceAndService(present *entity.Present) ([]*entity.Present, error) {
 	var (
 		presentList []*entity.Present
 	)
 	err := r.executer.Select(
-		"GetByPrice",
+		"GetByPriceAndService",
 		&presentList, `
 		SELECT * 
 		FROM Presents 
-		WHERE price >= ? && price <= ?
+		WHERE price >= ? 
+		AND price <= ?
+		AND payment_service = ?
 		ORDER BY price ASC
 		`,
-		price, price+20,
+		present.Price, present.Price+20, present.PaymentService,
 	)
 
 	if err != nil {
