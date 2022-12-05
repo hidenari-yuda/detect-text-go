@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/hidenari-yuda/umerun-resume/domain/config"
 	"github.com/hidenari-yuda/umerun-resume/domain/entity"
 	"github.com/hidenari-yuda/umerun-resume/infrastructure/database"
 	"github.com/hidenari-yuda/umerun-resume/infrastructure/di"
@@ -104,9 +105,14 @@ func (r *UserRoutes) GetByLineUserId(db *database.DB, firebase usecase.Firebase)
 /************************ line関連 ************************/
 func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
 		req := c.Request()
 
-		bot, err := linebot.New("LINE_SECRET", "LINE_ACCESS_TOKEN")
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -134,9 +140,12 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 			}
 		}
 
-		param := &entity.LineWebHookParam{
-			Bot:    bot,
-			Events: events,
+		param := &entity.LineWebHook{
+			Bot:                bot,
+			Events:             events,
+			ChannelSecret:      cfg.Line.ChannelSecret,
+			ChannelAccessToken: cfg.Line.ChannelAccessToken,
+			Request:            req,
 		}
 
 		h := di.InitializeUserHandler(db, firebase)

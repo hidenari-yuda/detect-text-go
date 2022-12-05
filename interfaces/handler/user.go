@@ -18,7 +18,7 @@ type UserHandler interface {
 	GetByLineUserId(lineUserId string) (presenter.Presenter, error)
 
 	// Line API
-	GetLineWebHook(param *entity.LineWebHookParam) (presenter.Presenter, error)
+	GetLineWebHook(param *entity.LineWebHook) (presenter.Presenter, error)
 }
 
 type UserHandlerImpl struct {
@@ -86,7 +86,7 @@ func (h *UserHandlerImpl) GetByLineUserId(lineUserId string) (presenter.Presente
 	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
 }
 
-func (h *UserHandlerImpl) GetLineWebHook(param *entity.LineWebHookParam) (presenter.Presenter, error) {
+func (h *UserHandlerImpl) GetLineWebHook(param *entity.LineWebHook) (presenter.Presenter, error) {
 	output, err := h.UserInteractor.GetLineWebHook(interactor.GetLineWebHookInput{
 		Param: param,
 	})

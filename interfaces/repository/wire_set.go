@@ -5,7 +5,7 @@ import "github.com/google/wire"
 var WireSet = wire.NewSet(
 	NewUserRepositoryImpl,
 	NewLineMessageRepositoryImpl,
-	NewGiftRepositoryImpl,
+	NewPresentRepositoryImpl,
 	NewPaymentMethodRepositoryImpl,
 	NewAspRepositoryImpl,
 

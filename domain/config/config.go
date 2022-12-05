@@ -60,4 +60,5 @@ type Google struct {
 type Line struct {
 	ChannelSecret      string `required:"true" split_words:"true"`
 	ChannelAccessToken string `required:"true" split_words:"true"`
+	AdminUserId        string `required:"true" split_words:"true"`
 }

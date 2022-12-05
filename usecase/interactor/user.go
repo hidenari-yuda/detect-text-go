@@ -25,11 +25,11 @@ type UserInteractorImpl struct {
 	userRepository           usecase.UserRepository
 	receiptPictureRepository usecase.ReceiptPictureRepository
 	receiptRepository        usecase.ReceiptRepository
-	ParchasedItemRepository  usecase.ParchasedItemRepository
-	PaymentMethodRepository  usecase.PaymentMethodRepository
-	GiftRepository           usecase.GiftRepository
-	LineMessageRepository    usecase.LineMessageRepository
-	AspRepository            usecase.AspRepository
+	parchasedItemRepository  usecase.ParchasedItemRepository
+	paymentMethodRepository  usecase.PaymentMethodRepository
+	presentRepository        usecase.PresentRepository
+	lineMessageRepository    usecase.LineMessageRepository
+	aspRepository            usecase.AspRepository
 }
 
 func NewUserInteractorImpl(
@@ -39,7 +39,7 @@ func NewUserInteractorImpl(
 	rR usecase.ReceiptRepository,
 	piR usecase.ParchasedItemRepository,
 	pmR usecase.PaymentMethodRepository,
-	gR usecase.GiftRepository,
+	pR usecase.PresentRepository,
 	lmR usecase.LineMessageRepository,
 	aR usecase.AspRepository,
 ) UserInteractor {
@@ -48,11 +48,11 @@ func NewUserInteractorImpl(
 		userRepository:           uR,
 		receiptPictureRepository: rpR,
 		receiptRepository:        rR,
-		ParchasedItemRepository:  piR,
-		PaymentMethodRepository:  pmR,
-		GiftRepository:           gR,
-		LineMessageRepository:    lmR,
-		AspRepository:            aR,
+		parchasedItemRepository:  piR,
+		paymentMethodRepository:  pmR,
+		presentRepository:        pR,
+		lineMessageRepository:    lmR,
+		aspRepository:            aR,
 	}
 }
 

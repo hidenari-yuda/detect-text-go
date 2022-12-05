@@ -22,7 +22,7 @@ type User struct {
 	// 関連テーブル
 	ReceiptPictures []ReceiptPicture `db:"-" json:"receipt_pictures"`
 	PaymentMethods  []PaymentMethod  `db:"-" json:"payment_methods"`
-	Gifts           []Gift           `db:"-" json:"gifts"`
+	Presents        []Present        `db:"-" json:"presents"`
 	LineMessages    []LineMessage    `db:"-" json:"line_messages"`
 
 	// dbにはないが、返却用に追加

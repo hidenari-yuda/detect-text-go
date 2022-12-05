@@ -12,11 +12,16 @@ import (
 	"github.com/hidenari-yuda/umerun-resume/domain/entity"
 )
 
-func checkReceipt(content io.ReadCloser, receiptPictures []*entity.ReceiptPicture) (uint, error) {
+func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPicture) (*entity.ReceiptPicture, *entity.Present, error) {
+	var (
+		receiptPicture *entity.ReceiptPicture
+		present        *entity.Present
+		err            error
+	)
 
 	byteData, err := io.ReadAll(content)
 	if err != nil {
-		return 0, err
+		return receiptPicture, present, err
 	}
 
 	filePath := fmt.Sprint("./public/snapshot/", time.Now(), "-receipt.jpg") // ファイル名をユニークにする
@@ -30,36 +35,34 @@ func checkReceipt(content io.ReadCloser, receiptPictures []*entity.ReceiptPictur
 
 	client, err := vision.NewImageAnnotatorClient(ctx)
 	if err != nil {
-		return 0, err
+		return receiptPicture, present, err
 	}
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return 0, err
+		return receiptPicture, present, err
 	}
 	defer file.Close()
 
 	image, err := vision.NewImageFromReader(file)
 	if err != nil {
-		return 0, err
+		return receiptPicture, present, err
 	}
 	annotations, err := client.DetectTexts(ctx, image, nil, 10)
 	if err != nil {
-		return 0, err
+		return receiptPicture, present, err
 	}
 
 	if len(annotations) == 0 {
 		fmt.Fprintln(w, "No text found.")
-		return 0, err
+		return receiptPicture, present, err
 	}
-
-	var receiptPicture *entity.ReceiptPicture
 
 	receiptPicture.DetectedText = annotations[0].Description
 
-	for _, v := range receiptPictures {
+	for _, v := range receiptPictureList {
 		if receiptPicture.DetectedText == v.DetectedText {
-			return 0, err
+			return receiptPicture, present, err
 		}
 	}
 
@@ -124,19 +127,19 @@ func checkReceipt(content io.ReadCloser, receiptPictures []*entity.ReceiptPictur
 	}
 
 	len := len(annotations)
-	gift := &entity.Gift{
+	present = &entity.Present{
 		Price: uint(len),
 	}
 
-	fmt.Println("len is:", gift)
+	fmt.Println("len is:", present)
 
 	// dbに保存
-	return 0, nil
+	return receiptPicture, present, nil
 }
 
-func detectTextFromReceipt(content io.ReadCloser) (uint, error) {
-	return 0, nil
-}
+// func detectTextFromReceipt(content io.ReadCloser) (uint, error) {
+// 	return receiptPicture, present, nil
+// }
 
 func ContainsList(s string, list ...string) (strMap map[string]bool) {
 	for _, v := range list {

@@ -52,13 +52,14 @@ type ParchasedItemRepository interface {
 	GetListByLineUserId(lineUserId string) ([]*entity.ParchasedItem, error)
 }
 
-type GiftRepository interface {
+type PresentRepository interface {
 	// Gest API
-	Create(param *entity.Gift) error
-	GetById(id uint) (*entity.Gift, error)
-	// GetListByUserId(userId uint) ([]*entity.Gift, error)
-	GetListByReceiptId(receiptId uint) ([]*entity.Gift, error)
-	GetListByLineUserId(lineUserId string) ([]*entity.Gift, error)
+	Create(param *entity.Present) error
+	GetById(id uint) (*entity.Present, error)
+	GetByPrice(price uint) ([]*entity.Present, error)
+	// GetListByUserId(userId uint) ([]*entity.Present, error)
+	GetListByReceiptId(receiptId uint) ([]*entity.Present, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.Present, error)
 }
 
 type AspRepository interface {

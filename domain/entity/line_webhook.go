@@ -1,8 +1,15 @@
 package entity
 
-import "github.com/line/line-bot-sdk-go/v7/linebot"
+import (
+	"net/http"
 
-type LineWebHookParam struct {
-	Bot    *linebot.Client
-	Events []*linebot.Event
+	"github.com/line/line-bot-sdk-go/v7/linebot"
+)
+
+type LineWebHook struct {
+	Bot                *linebot.Client
+	Events             []*linebot.Event
+	ChannelSecret      string
+	ChannelAccessToken string
+	Request            *http.Request
 }

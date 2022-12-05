@@ -25,10 +25,10 @@ func InitializeUserHandler(db interfaces.SQLExecuter, fb usecase.Firebase) handl
 	receiptRepository := repository.NewReceiptRepositoryImpl(db)
 	parchasedItemRepository := repository.NewParchasedItemRepositoryImpl(db)
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
-	giftRepository := repository.NewGiftRepositoryImpl(db)
+	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
 	aspRepository := repository.NewAspRepositoryImpl(db)
-	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, giftRepository, lineMessageRepository, aspRepository)
+	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
 	userHandler := handler.NewUserHandlerImpl(userInteractor)
 	return userHandler
 }
@@ -41,10 +41,10 @@ func InitializeUserInteractor(db interfaces.SQLExecuter, fb usecase.Firebase) in
 	receiptRepository := repository.NewReceiptRepositoryImpl(db)
 	parchasedItemRepository := repository.NewParchasedItemRepositoryImpl(db)
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
-	giftRepository := repository.NewGiftRepositoryImpl(db)
+	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
 	aspRepository := repository.NewAspRepositoryImpl(db)
-	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, giftRepository, lineMessageRepository, aspRepository)
+	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
 	return userInteractor
 }
 
