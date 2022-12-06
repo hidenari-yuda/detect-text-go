@@ -17,7 +17,6 @@ wire:
 	wire ./infrastructure/di/wire.go
 
 run:
-	export APP_ENV=local
 	air -c .conf/.air.toml
 
 up:

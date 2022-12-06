@@ -14,7 +14,7 @@ import (
 // GoogleOAuthのリダイレクトURL作成用Configを生成
 func NewGoogleAuthConf() *oauth2.Config {
 
-	err := godotenv.Load(".env")
+	err := godotenv.Load(".env.local")
 	if err != nil {
 		fmt.Println("Error loading .env file")
 	}

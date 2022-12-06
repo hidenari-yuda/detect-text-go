@@ -24,15 +24,16 @@ import (
 func init() {
 	time.Local = utility.Tokyo
 
-	if err := godotenv.Load(); err != nil {
-		panic("Failed to load .env file")
+	goEnv := os.Getenv("GO_ENV")
+	if goEnv == "" {
+		goEnv = "local"
 	}
 
-	if os.Getenv("APP_ENV") == "local" {
-		if err := godotenv.Load(); err != nil {
-			panic("Failed to load .env file")
-		}
+	if err := godotenv.Load(fmt.Sprintf(".conf/%s.env", goEnv)); err != nil {
+		panic("Failed to load .env file")
 	}
+	fmt.Println("load .env.local:", os.Getenv("GO_ENV"))
+	fmt.Println("load .env.local:", os.Getenv("APP_ENV"))
 }
 
 func main() {
