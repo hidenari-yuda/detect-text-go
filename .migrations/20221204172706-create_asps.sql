@@ -4,9 +4,9 @@ CREATE TABLE IF NOT EXISTS asps (
   id INT NOT NULL AUTO_INCREMENT UNIQUE,
   uuid VARCHAR(36) NOT NULL UNIQUE,
   user_id INT NOT NULL,
-  method INT NOT NULL,  -- 支払い方法 0: cash, 1: credit card 2:mobile (default: 0)
-  name VARCHAR(255) NOT NULL,
-  number VARCHAR(255) NOT NULL,
+  service INT NOT NULL, -- 0: amazon, 1: rakuten 2:yahoo (default: 0)
+  url VARCHAR(255) NOT NULL,
+  price INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),

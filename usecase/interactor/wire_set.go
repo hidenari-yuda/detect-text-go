@@ -6,7 +6,7 @@ var WireSet = wire.NewSet(
 	NewUserInteractorImpl,
 	// NewReceiptInteractorImpl,
 	// NewParchasedItemInteractorImpl,
-	// NewGiftInteractorImpl,
+	NewPresentInteractorImpl,
 	// NewPaymentMethodInteractorImpl,
 	// NewAspInteractorImpl,
 	// NewLineMessageInteractorImpl,

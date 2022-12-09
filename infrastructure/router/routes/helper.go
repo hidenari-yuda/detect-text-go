@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/hidenari-yuda/paychan/interfaces/presenter"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
@@ -30,4 +33,18 @@ func renderFile(c echo.Context, filePath string) error {
 		return err
 	}
 	return nil
+}
+
+// stringToUint
+func stringToUint(s string) (uint, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+
+	if i < 1 {
+		return 0, fmt.Errorf("invalid value: %d", i)
+	}
+
+	return uint(i), nil
 }

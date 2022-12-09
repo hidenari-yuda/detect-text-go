@@ -59,8 +59,11 @@ type PresentRepository interface {
 	GetById(id uint) (*entity.Present, error)
 	GetByPriceAndService(present *entity.Present) ([]*entity.Present, error)
 	// GetListByUserId(userId uint) ([]*entity.Present, error)
-	GetListByReceiptId(receiptId uint) ([]*entity.Present, error)
+	GetListByReceiptPictureId(receiptPictureId uint) ([]*entity.Present, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.Present, error)
+	GetAll() ([]*entity.Present, error)
+
+	DeleteByExpired() error
 }
 
 type AspRepository interface {

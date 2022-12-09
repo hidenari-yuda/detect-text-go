@@ -9,13 +9,13 @@ import (
 
 type UserInteractor interface {
 	// Gest API
-	SignUp(input SignUpInput) (output SignUpOutput, err error)
-	SignIn(input SignInInput) (output SignInOutput, err error)
-	GetByFirebaseToken(input GetByFirebaseTokenInput) (output GetByFirebaseTokenOutput, err error)
-	GetByLineUserId(input GetByLineUserIdInput) (output GetByLineUserIdOutput, err error)
+	SignUp(param *entity.SignUpParam) (ok bool, err error)
+	SignIn(param *entity.SignInParam) (user *entity.User, err error)
+	GetByFirebaseToken(token string) (user *entity.User, err error)
+	GetByLineUserId(lineUserId string) (user *entity.User, err error)
 
 	// line
-	GetLineWebHook(input GetLineWebHookInput) (output GetLineWebHookOutput, err error)
+	GetLineWebHook(param *entity.LineWebHook) (ok bool, err error)
 
 	// resume
 }
@@ -56,98 +56,66 @@ func NewUserInteractorImpl(
 	}
 }
 
-type SignUpInput struct {
-	Param *entity.SignUpParam
-}
-
-type SignUpOutput struct {
-	Ok bool
-}
-
-func (i *UserInteractorImpl) SignUp(input SignUpInput) (output SignUpOutput, err error) {
+func (i *UserInteractorImpl) SignUp(param *entity.SignUpParam) (ok bool, err error) {
 	// ユーザー登録
-	err = i.userRepository.SignUp(input.Param)
+	err = i.userRepository.SignUp(param)
 	if err != nil {
-		return output, err
+		return ok, err
 	}
 
-	output.Ok = true
+	ok = true
 
-	return output, nil
+	return ok, nil
 }
 
-type SignInInput struct {
-	Param *entity.SignInParam
-}
+func (i *UserInteractorImpl) SignIn(param *entity.SignInParam) (user *entity.User, err error) {
 
-type SignInOutput struct {
-	User *entity.User
-}
-
-func (i *UserInteractorImpl) SignIn(input SignInInput) (output SignInOutput, err error) {
-
-	firebaseId, err := i.firebase.VerifyIDToken(input.Param.Token)
+	firebaseId, err := i.firebase.VerifyIDToken(param.Token)
 	if err != nil {
-		return output, err
+		return user, err
 	}
 
-	fmt.Println("exported firebaseToken is:", input.Param.Token)
+	fmt.Println("exported firebaseToken is:", param.Token)
 	fmt.Println("exported firebaseId is:", firebaseId)
 
 	// ユーザー登録
-	output.User, err = i.userRepository.GetByFirebaseId(firebaseId)
+	user, err = i.userRepository.GetByFirebaseId(firebaseId)
 	if err != nil {
 		err = fmt.Errorf("failed to get user by firebaseId: %w", err)
-		return output, err
+		return user, err
 	}
 
-	return output, nil
+	return user, nil
 
 }
 
-type GetByFirebaseTokenInput struct {
-	Token string
-}
+func (i *UserInteractorImpl) GetByFirebaseToken(token string) (user *entity.User, err error) {
 
-type GetByFirebaseTokenOutput struct {
-	User *entity.User
-}
-
-func (i *UserInteractorImpl) GetByFirebaseToken(input GetByFirebaseTokenInput) (output GetByFirebaseTokenOutput, err error) {
-
-	firebaseId, err := i.firebase.VerifyIDToken(input.Token)
+	firebaseId, err := i.firebase.VerifyIDToken(token)
 	if err != nil {
-		return output, err
+		return user, err
 	}
 
 	fmt.Println("exported firebaseId is:", firebaseId)
 
-	output.User, err = i.userRepository.GetByFirebaseId(firebaseId)
+	user, err = i.userRepository.GetByFirebaseId(firebaseId)
 	if err != nil {
-		return output, err
+		return user, err
 	}
 
-	fmt.Println("exported user is:", output.User)
+	fmt.Println("exported user is:", user)
 
-	return output, nil
+	return user, nil
 }
 
-type GetByLineUserIdInput struct {
-	LineUserId string
-}
+func (i *UserInteractorImpl) GetByLineUserId(lineUserId string) (user *entity.User, err error) {
 
-type GetByLineUserIdOutput struct {
-	User *entity.User
-}
-
-func (i *UserInteractorImpl) GetByLineUserId(input GetByLineUserIdInput) (output GetByLineUserIdOutput, err error) {
-
-	output.User, err = i.userRepository.GetByLineUserId(input.LineUserId)
+	user, err = i.userRepository.GetByLineUserId(lineUserId)
 	if err != nil {
-		return output, err
+		return user, err
 	}
 
-	fmt.Println("exported user is:", output.User)
+	fmt.Println("exported user is:", user)
 
-	return output, nil
+	return user, nil
 }

@@ -29,7 +29,7 @@ func NewPresentRepositoryImpl(ex interfaces.SQLExecuter) usecase.PresentReposito
 
 func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO Presents (
 			uuid,
 			firebase_id,
@@ -66,7 +66,7 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 // Update
 func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 	_, err := r.executer.Exec(
-		"UpdatePresent",
+		r.Name+"Update",
 		`UPDATE Presents
 		SET
 			user_id = ?,
@@ -96,7 +96,7 @@ func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
 		present entity.Present
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&present,
 		"SELECT * FROM Presents WHERE id = ?",
 		id,
@@ -116,7 +116,7 @@ func (r *PresentRepositoryImpl) GetByPriceAndService(present *entity.Present) ([
 		presentList []*entity.Present
 	)
 	err := r.executer.Select(
-		"GetByPriceAndService",
+		r.Name+"GetByPriceAndService",
 		&presentList, `
 		SELECT * 
 		FROM Presents 
@@ -144,21 +144,17 @@ func (r *PresentRepositoryImpl) GetByPriceAndService(present *entity.Present) ([
 	return presentList, nil
 }
 
-func (r *PresentRepositoryImpl) GetListByReceiptId(receiptId uint) ([]*entity.Present, error) {
+func (r *PresentRepositoryImpl) GetListByReceiptPictureId(receiptPictureId uint) ([]*entity.Present, error) {
 	var (
 		presentList []*entity.Present
 	)
 	err := r.executer.Select(
-		"GetByLinePresentId",
+		r.Name+"GetByReceiptPictureId",
 		&presentList, `
 		SELECT * 
 		FROM Presents 
-		WHERE user_id = (
-			SELECT id
-			FROM users
-			WHERE line_user_id = ?
-		)`,
-		receiptId,
+		WHERE receipt_picture_id = ?`,
+		receiptPictureId,
 	)
 
 	if err != nil {
@@ -175,7 +171,7 @@ func (r *PresentRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entit
 		presentList []*entity.Present
 	)
 	err := r.executer.Select(
-		"GetByLinePresentId",
+		r.Name+"GetByLinePresentId",
 		&presentList, `
 		SELECT * 
 		FROM Presents 
@@ -194,4 +190,41 @@ func (r *PresentRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entit
 	}
 
 	return presentList, nil
+}
+
+// GetAll
+func (r *PresentRepositoryImpl) GetAll() ([]*entity.Present, error) {
+	var (
+		presentList []*entity.Present
+	)
+	err := r.executer.Select(
+		r.Name+"GetAll",
+		&presentList, `
+		SELECT * 
+		FROM Presents`,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get Present by line Present id: %w", err)
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return presentList, nil
+}
+
+// DeleteByExpired
+func (r *PresentRepositoryImpl) DeleteByExpired() error {
+	_, err := r.executer.Exec(
+		r.Name+"DeleteByExpired",
+		`DELETE FROM Presents
+		WHERE expirary < ?`,
+		time.Now(),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

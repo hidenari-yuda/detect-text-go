@@ -33,6 +33,22 @@ func InitializeUserHandler(db interfaces.SQLExecuter, fb usecase.Firebase) handl
 	return userHandler
 }
 
+// Present
+//
+func InitializePresentHandler(db interfaces.SQLExecuter, fb usecase.Firebase) handler.PresentHandler {
+	userRepository := repository.NewUserRepositoryImpl(db)
+	receiptPictureRepository := repository.NewReceiptPictureRepositoryImpl(db)
+	receiptRepository := repository.NewReceiptRepositoryImpl(db)
+	parchasedItemRepository := repository.NewParchasedItemRepositoryImpl(db)
+	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
+	presentRepository := repository.NewPresentRepositoryImpl(db)
+	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
+	aspRepository := repository.NewAspRepositoryImpl(db)
+	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
+	presentHandler := handler.NewPresentHandlerImpl(presentInteractor)
+	return presentHandler
+}
+
 // User
 //
 func InitializeUserInteractor(db interfaces.SQLExecuter, fb usecase.Firebase) interactor.UserInteractor {
@@ -46,6 +62,21 @@ func InitializeUserInteractor(db interfaces.SQLExecuter, fb usecase.Firebase) in
 	aspRepository := repository.NewAspRepositoryImpl(db)
 	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
 	return userInteractor
+}
+
+// Present
+//
+func InitializePresentInteractor(db interfaces.SQLExecuter, fb usecase.Firebase) interactor.PresentInteractor {
+	userRepository := repository.NewUserRepositoryImpl(db)
+	receiptPictureRepository := repository.NewReceiptPictureRepositoryImpl(db)
+	receiptRepository := repository.NewReceiptRepositoryImpl(db)
+	parchasedItemRepository := repository.NewParchasedItemRepositoryImpl(db)
+	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
+	presentRepository := repository.NewPresentRepositoryImpl(db)
+	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
+	aspRepository := repository.NewAspRepositoryImpl(db)
+	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
+	return presentInteractor
 }
 
 // wire.go:

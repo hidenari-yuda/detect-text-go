@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/hidenari-yuda/paychan/domain/entity"
 	"github.com/hidenari-yuda/paychan/domain/entity/responses"
 	"github.com/hidenari-yuda/paychan/interfaces/presenter"
@@ -32,66 +30,54 @@ func NewUserHandlerImpl(ui interactor.UserInteractor) UserHandler {
 
 func (h *UserHandlerImpl) SignUp(param *entity.SignUpParam) (presenter.Presenter, error) {
 
-	output, err := h.UserInteractor.SignUp(interactor.SignUpInput{
-		Param: param,
-	})
-	fmt.Println(output, err)
-
+	ok, err := h.UserInteractor.SignUp(param)
 	if err != nil {
 		// c.JSON(c, presenter.NewErrorJsonPresenter(err))
 		return nil, err
 	}
 
-	return presenter.NewOkJSONPresenter(responses.NewOK(output.Ok)), nil
+	return presenter.NewOkJSONPresenter(responses.NewOK(ok)), nil
 
 }
 
 func (h *UserHandlerImpl) SignIn(param *entity.SignInParam) (presenter.Presenter, error) {
-	output, err := h.UserInteractor.SignIn(interactor.SignInInput{
-		Param: param,
-	})
+	user, err := h.UserInteractor.SignIn(param)
 	if err != nil {
 		// c.JSON(c, presenter.NewErrorJsonPresenter(err))
 		return nil, err
 	}
 
-	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
+	return presenter.NewUserJSONPresenter(responses.NewUser(user)), nil
 
 }
 
 func (h *UserHandlerImpl) GetByFirebaseToken(token string) (presenter.Presenter, error) {
-	output, err := h.UserInteractor.GetByFirebaseToken(interactor.GetByFirebaseTokenInput{
-		Token: token,
-	})
+	user, err := h.UserInteractor.GetByFirebaseToken(token)
 
 	if err != nil {
 		// c.JSON(c, presenter.NewErrorJsonPresenter(err))
 		return nil, err
 	}
 
-	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
+	return presenter.NewUserJSONPresenter(responses.NewUser(user)), nil
 }
 
 func (h *UserHandlerImpl) GetByLineUserId(lineUserId string) (presenter.Presenter, error) {
-	output, err := h.UserInteractor.GetByLineUserId(interactor.GetByLineUserIdInput{
-		LineUserId: lineUserId,
-	})
+	user, err := h.UserInteractor.GetByLineUserId(lineUserId)
 
 	if err != nil {
 		// c.JSON(c, presenter.NewErrorJsonPresenter(err))
 		return nil, err
 	}
 
-	return presenter.NewUserJSONPresenter(responses.NewUser(output.User)), nil
+	return presenter.NewUserJSONPresenter(responses.NewUser(user)), nil
 }
 
 func (h *UserHandlerImpl) GetLineWebHook(param *entity.LineWebHook) (presenter.Presenter, error) {
-	output, err := h.UserInteractor.GetLineWebHook(interactor.GetLineWebHookInput{
-		Param: param,
-	})
+	ok, err := h.UserInteractor.GetLineWebHook(param)
 	if err != nil {
 		return nil, err
 	}
 
-	return presenter.NewOkJSONPresenter(responses.NewOK(output.Ok)), nil
+	return presenter.NewOkJSONPresenter(responses.NewOK(ok)), nil
 }

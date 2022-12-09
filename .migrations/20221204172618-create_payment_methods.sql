@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS payment_methods (
   uuid VARCHAR(36) NOT NULL UNIQUE,
   user_id INT NOT NULL,
   line_user_id VARCHAR(255) NOT NULL,
-  payment_service INT NOT NULL,  -- 支払い方法 0: cash, 1: credit card 2:mobile (default: 0)
+  payment_service INT NOT NULL DEFAULT 0,  -- 支払い方法 0: cash, 1: credit card 2:mobile (default: 0)
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),
