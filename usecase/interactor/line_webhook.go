@@ -3,8 +3,8 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/detect-text/domain/config"
-	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/paychan/domain/config"
+	"github.com/hidenari-yuda/paychan/domain/entity"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
@@ -22,11 +22,12 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 		// 既存のユーザーかどうか確認
 		user, err := i.userRepository.GetByLineUserId(event.Source.UserID)
 		if err != nil {
+
+			// 既存のユーザーではない場合は新規登録
 			res, err := input.Param.Bot.GetProfile(event.Source.UserID).Do()
 			if err != nil {
 				return output, fmt.Errorf("lineプロフィールの取得エラー: %w", err)
 			}
-			// 既存のユーザーではない場合は新規登録
 			err = i.userRepository.SignUp(&entity.SignUpParam{
 				LineUserId:    res.UserID,
 				LineName:      res.DisplayName,

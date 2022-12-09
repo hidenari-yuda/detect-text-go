@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/hidenari-yuda/detect-text/domain/entity"
+import "github.com/hidenari-yuda/paychan/domain/entity"
 
 type UserRepository interface {
 	// Gest API

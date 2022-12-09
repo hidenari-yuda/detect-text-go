@@ -3,7 +3,7 @@ package utility
 import (
 	"crypto/subtle"
 
-	"github.com/hidenari-yuda/detect-text/domain/config"
+	"github.com/hidenari-yuda/paychan/domain/config"
 	"github.com/labstack/echo/v4"
 )
 

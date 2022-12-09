@@ -3,11 +3,10 @@ package handler
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/detect-text/domain/entity"
-	"github.com/hidenari-yuda/detect-text/domain/entity/responses"
-	"github.com/hidenari-yuda/detect-text/interfaces/presenter"
-
-	"github.com/hidenari-yuda/detect-text/usecase/interactor"
+	"github.com/hidenari-yuda/paychan/domain/entity"
+	"github.com/hidenari-yuda/paychan/domain/entity/responses"
+	"github.com/hidenari-yuda/paychan/interfaces/presenter"
+	"github.com/hidenari-yuda/paychan/usecase/interactor"
 )
 
 type UserHandler interface {

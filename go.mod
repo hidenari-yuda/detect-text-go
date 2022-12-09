@@ -1,4 +1,4 @@
-module github.com/hidenari-yuda/detect-text
+module github.com/hidenari-yuda/paychan
 
 go 1.18
 

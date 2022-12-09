@@ -12,9 +12,9 @@ import (
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
-	"github.com/hidenari-yuda/detect-text/domain/config"
-	"github.com/hidenari-yuda/detect-text/domain/entity"
-	"github.com/hidenari-yuda/detect-text/usecase"
+	"github.com/hidenari-yuda/paychan/domain/config"
+	"github.com/hidenari-yuda/paychan/domain/entity"
+	"github.com/hidenari-yuda/paychan/usecase"
 	"github.com/pkg/errors"
 	"google.golang.org/api/option"
 )

@@ -1,26 +1,26 @@
 version: '3'
 networks:
-  detect-text-network:
+  paychan-network:
     driver: bridge
 services:
   db:
-    container_name: detect_text_local_db
+    container_name: paychan_local_db
     image: mysql:8.0.30
     networks:
-      - detect-text-network
+      - paychan-network
     ports:
       - 3306:3306
     volumes:
       - .conf/conf.d:/etc/mysql/conf.d
     environment:
-      MYSQL_DATABASE: detect_text_local
+      MYSQL_DATABASE: paychan_local
       MYSQL_ROOT_PASSWORD: password
   butler:
     build:
       context: .
       dockerfile: Dockerfile.local
     networks:
-      - detect-text-network
+      - paychan-network
     volumes:
       - .:/go/src/app
     env_file:

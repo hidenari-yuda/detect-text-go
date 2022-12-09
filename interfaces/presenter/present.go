@@ -2,10 +2,10 @@ package presenter
 
 import "github.com/hidenari-yuda/paychan/domain/entity/responses"
 
-func NewUserJSONPresenter(resp responses.User) Presenter {
+func NewPresentJSONPresenter(resp responses.Present) Presenter {
 	return NewJSONPresenter(200, resp)
 }
 
-func NewUserListJSONPresenter(resp responses.UserList) Presenter {
+func NewPresentListJSONPresenter(resp responses.PresentList) Presenter {
 	return NewJSONPresenter(200, resp)
 }

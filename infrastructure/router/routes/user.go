@@ -9,11 +9,11 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/hidenari-yuda/detect-text/domain/config"
-	"github.com/hidenari-yuda/detect-text/domain/entity"
-	"github.com/hidenari-yuda/detect-text/infrastructure/database"
-	"github.com/hidenari-yuda/detect-text/infrastructure/di"
-	"github.com/hidenari-yuda/detect-text/usecase"
+	"github.com/hidenari-yuda/paychan/domain/config"
+	"github.com/hidenari-yuda/paychan/domain/entity"
+	"github.com/hidenari-yuda/paychan/infrastructure/database"
+	"github.com/hidenari-yuda/paychan/infrastructure/di"
+	"github.com/hidenari-yuda/paychan/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )

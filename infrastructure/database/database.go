@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/hidenari-yuda/detect-text/domain/config"
-	"github.com/hidenari-yuda/detect-text/domain/entity"
+	"github.com/hidenari-yuda/paychan/domain/config"
+	"github.com/hidenari-yuda/paychan/domain/entity"
 	"github.com/jmoiron/sqlx"
 	migrate "github.com/rubenv/sql-migrate"
 	"gopkg.in/guregu/null.v4"

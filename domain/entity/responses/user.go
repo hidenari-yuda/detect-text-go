@@ -1,6 +1,6 @@
 package responses
 
-import "github.com/hidenari-yuda/detect-text/domain/entity"
+import "github.com/hidenari-yuda/paychan/domain/entity"
 
 type User struct {
 	User *entity.User `json:"user"`

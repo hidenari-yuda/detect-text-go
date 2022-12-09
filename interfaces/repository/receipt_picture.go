@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hidenari-yuda/detect-text/domain/entity"
-	"github.com/hidenari-yuda/detect-text/domain/utility"
-	"github.com/hidenari-yuda/detect-text/interfaces"
-	"github.com/hidenari-yuda/detect-text/usecase"
+	"github.com/hidenari-yuda/paychan/domain/entity"
+	"github.com/hidenari-yuda/paychan/domain/utility"
+	"github.com/hidenari-yuda/paychan/interfaces"
+	"github.com/hidenari-yuda/paychan/usecase"
 )
 
 type ReceiptPictureRepositoryImpl struct {
