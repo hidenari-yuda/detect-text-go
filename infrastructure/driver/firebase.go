@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -104,7 +104,7 @@ func (d *FirebaseImpl) GetIDToken(token string) (string, error) {
 		return "", errors.Wrap(entity.ErrServerError, err.Error())
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.Wrap(entity.ErrServerError, err.Error())
 	}

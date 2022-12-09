@@ -1,7 +1,12 @@
 package routes
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/hidenari-yuda/detect-text/domain/config"
@@ -110,13 +115,48 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 			return c.JSON(http.StatusInternalServerError, err)
 		}
 
-		req := c.Request()
-
 		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
+
+		req := c.Request() // リクエストの取得
+		defer req.Body.Close()
+
+		// Webhookイベントオブジェクトの処理
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			fmt.Println(err)
+			c.Response().WriteHeader(500)
+			return fmt.Errorf("リクエストボディの読み込みに失敗しました: %w", err)
+		}
+
+		// 署名の検証
+		// 参考: https://developers.line.biz/ja/reference/messaging-api/#signature-validation
+		// x-line-signatureヘッダーから署名を取得
+		decoded, err := base64.StdEncoding.DecodeString(req.Header.Get("x-line-signature"))
+		if err != nil {
+			fmt.Println(err)
+			c.Response().WriteHeader(500)
+			return fmt.Errorf("x-line-signatureをエンコードできません: %s", err.Error())
+		}
+
+		// lineシークレットをキーにしてHMAC-SHA256にしたものと署名が正しいか検証
+		hash := hmac.New(sha256.New, []byte(cfg.Line.ChannelSecret))
+		_, err = hash.Write(body)
+		if err != nil {
+			c.Response().WriteHeader(500)
+			return fmt.Errorf("hash.Write(body)に失敗しました: %s", err.Error())
+		}
+
+		// Compare decoded signature and `hash.Sum(nil)` by using `hmac.Equal`
+		if !hmac.Equal(decoded, hash.Sum(nil)) {
+			c.Response().WriteHeader(400)
+			return fmt.Errorf("署名キーが正しくありません: %s", err.Error())
+		}
+
+		req.Body = io.NopCloser(bytes.NewBuffer(body)) // リクエストボディを再利用するためにリセット
 
 		// Webhookイベントオブジェクトの取得
 		// 参考: https://developers.line.biz/ja/reference/messaging-api/#webhook-event-objects
@@ -132,6 +172,8 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 				return err
 			}
 		}
+
+		// 画像メッセージの場合、先にメッセージを返す
 		// events[0].Message.(*linebot.ImageMessage).Message != nil
 		if events[0].Type == linebot.EventTypeMessage {
 			switch events[0].Message.(type) {

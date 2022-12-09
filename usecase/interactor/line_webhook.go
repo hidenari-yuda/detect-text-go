@@ -62,7 +62,6 @@ func (i *UserInteractorImpl) GetLineWebHook(input GetLineWebHookInput) (output G
 				fmt.Println("content.Content", content.Content)
 
 				// レシートか判定
-
 				receiptPicture, presentPrice, err := checkReceipt(content.Content, receiptPictures)
 				if err != nil {
 
