@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/hidenari-yuda/paychan/interfaces/presenter"
+	"github.com/hidenari-yuda/paychan-server/interfaces/presenter"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
 )

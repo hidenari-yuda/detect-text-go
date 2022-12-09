@@ -1,6 +1,6 @@
 package batch
 
-import "github.com/hidenari-yuda/paychan/domain/config"
+import "github.com/hidenari-yuda/paychan-server/domain/config"
 
 type Batch struct {
 	cfg config.Config

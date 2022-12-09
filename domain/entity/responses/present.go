@@ -1,6 +1,6 @@
 package responses
 
-import "github.com/hidenari-yuda/paychan/domain/entity"
+import "github.com/hidenari-yuda/paychan-server/domain/entity"
 
 type Present struct {
 	Present *entity.Present `json:"present"`

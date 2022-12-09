@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"github.com/hidenari-yuda/paychan/domain/entity"
-	"github.com/hidenari-yuda/paychan/domain/entity/responses"
-	"github.com/hidenari-yuda/paychan/interfaces/presenter"
+	"github.com/hidenari-yuda/paychan-server/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/domain/entity/responses"
+	"github.com/hidenari-yuda/paychan-server/interfaces/presenter"
 
-	"github.com/hidenari-yuda/paychan/usecase/interactor"
+	"github.com/hidenari-yuda/paychan-server/usecase/interactor"
 )
 
 type PresentHandler interface {

@@ -3,8 +3,8 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/paychan/domain/config"
-	"github.com/hidenari-yuda/paychan/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/domain/config"
+	"github.com/hidenari-yuda/paychan-server/domain/entity"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 

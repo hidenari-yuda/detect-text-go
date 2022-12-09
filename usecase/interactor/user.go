@@ -3,8 +3,8 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/paychan/domain/entity"
-	"github.com/hidenari-yuda/paychan/usecase"
+	"github.com/hidenari-yuda/paychan-server/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/usecase"
 )
 
 type UserInteractor interface {

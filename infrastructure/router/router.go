@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hidenari-yuda/paychan/domain/config"
-	"github.com/hidenari-yuda/paychan/infrastructure/database"
-	"github.com/hidenari-yuda/paychan/infrastructure/driver"
-	"github.com/hidenari-yuda/paychan/infrastructure/router/routes"
+	"github.com/hidenari-yuda/paychan-server/domain/config"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/driver"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/router/routes"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -61,9 +61,9 @@ func (r *Router) SetUp() *Router {
 	var origins = []string{
 		"http://localhost:9090",
 		"http://localhost:3000",
-		"https://paychan.com",
-		"https://app.paychan.com",
-		"https://api.paychan.com",
+		"https://paychan-server.com",
+		"https://app.paychan-server.com",
+		"https://api.paychan-server.com",
 	}
 
 	// if r.cfg.App.Env == "local" {

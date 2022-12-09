@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/hidenari-yuda/paychan/domain/entity"
+import "github.com/hidenari-yuda/paychan-server/domain/entity"
 
 type ErrorJsonPresenter struct {
 	PresenterImpl

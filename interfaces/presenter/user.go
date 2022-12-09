@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/hidenari-yuda/paychan/domain/entity/responses"
+import "github.com/hidenari-yuda/paychan-server/domain/entity/responses"
 
 func NewUserJSONPresenter(resp responses.User) Presenter {
 	return NewJSONPresenter(200, resp)

@@ -1,4 +1,4 @@
-module github.com/hidenari-yuda/paychan
+module github.com/hidenari-yuda/paychan-server
 
 go 1.18
 

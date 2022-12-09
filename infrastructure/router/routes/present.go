@@ -3,10 +3,10 @@ package routes
 import (
 	"net/http"
 
-	"github.com/hidenari-yuda/paychan/domain/entity"
-	"github.com/hidenari-yuda/paychan/infrastructure/database"
-	"github.com/hidenari-yuda/paychan/infrastructure/di"
-	"github.com/hidenari-yuda/paychan/usecase"
+	"github.com/hidenari-yuda/paychan-server/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/di"
+	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/labstack/echo/v4"
 )
 

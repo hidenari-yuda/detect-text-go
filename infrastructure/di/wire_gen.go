@@ -8,11 +8,11 @@ package di
 
 import (
 	"github.com/google/wire"
-	"github.com/hidenari-yuda/paychan/interfaces"
-	"github.com/hidenari-yuda/paychan/interfaces/handler"
-	"github.com/hidenari-yuda/paychan/interfaces/repository"
-	"github.com/hidenari-yuda/paychan/usecase"
-	"github.com/hidenari-yuda/paychan/usecase/interactor"
+	"github.com/hidenari-yuda/paychan-server/interfaces"
+	"github.com/hidenari-yuda/paychan-server/interfaces/handler"
+	"github.com/hidenari-yuda/paychan-server/interfaces/repository"
+	"github.com/hidenari-yuda/paychan-server/usecase"
+	"github.com/hidenari-yuda/paychan-server/usecase/interactor"
 )
 
 // Injectors from wire.go:

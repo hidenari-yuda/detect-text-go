@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hidenari-yuda/paychan/domain/entity"
-	"github.com/hidenari-yuda/paychan/domain/utility"
-	"github.com/hidenari-yuda/paychan/interfaces"
-	"github.com/hidenari-yuda/paychan/usecase"
+	"github.com/hidenari-yuda/paychan-server/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/domain/utility"
+	"github.com/hidenari-yuda/paychan-server/interfaces"
+	"github.com/hidenari-yuda/paychan-server/usecase"
 )
 
 type ParchasedItemRepositoryImpl struct {
