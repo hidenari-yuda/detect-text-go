@@ -128,7 +128,7 @@ func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPic
 
 	len := len(annotations)
 	present = &entity.Present{
-		Price: uint(len),
+		Point: uint(len),
 	}
 
 	fmt.Println("len is:", present)

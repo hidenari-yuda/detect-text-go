@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS receipt_pictures (
   detected_text TEXT NOT NULL,
   service INT,
   payment_service INT,
+  point INT NOT NULL DEFAULT 1,
   total_price INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,

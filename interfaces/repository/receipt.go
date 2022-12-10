@@ -32,10 +32,10 @@ func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 		"SignUp",
 		`INSERT INTO Receipts (
 			uuid,
-			firebase_id,
-			name, 
-			email, 
-			password,
+			receipt_picture_id,
+			store_name,
+			total_price,
+			purchased_at,
 			created_at,
 			updated_at
 			) VALUES (
@@ -45,13 +45,13 @@ func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 				?,
 				?,
 				?,
-				?
+				?,
 		)`,
 		utility.CreateUUID(),
-		"",
-		"ゲスト",
-		// param.Email,
-		// param.Password,
+		param.ReceiptPictureId,
+		param.StoreName,
+		param.TotalPrice,
+		param.PurchasedAt,
 		time.Now(),
 		time.Now(),
 	)

@@ -8,7 +8,7 @@ type Present struct {
 	UserId           uint           `db:"user_id" json:"user_id"`
 	ReceiptPictureId uint           `db:"receipt_picture_id" json:"receipt_picture_id"`
 	PaymentService   PaymentService `db:"payment_service" json:"payment_service"` // 0: amazon, 1: rakuten 2:yahoo (default: 0)
-	Price            uint           `db:"price" json:"price"`
+	Point            uint           `db:"point" json:"point"`
 	Url              string         `db:"url" json:"url"`
 	CreatedAt        time.Time      `db:"created_at" json:"created_at"`
 	UpdatedAt        time.Time      `db:"updated_at" json:"updated_at"`

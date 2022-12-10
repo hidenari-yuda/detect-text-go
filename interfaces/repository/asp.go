@@ -32,10 +32,10 @@ func (r *AspRepositoryImpl) Create(param *entity.Asp) error {
 		"SignUp",
 		`INSERT INTO Asps (
 			uuid,
-			firebase_id,
-			name, 
-			email, 
-			password,
+			user_id,
+			service,
+			url,
+			price,
 			created_at,
 			updated_at
 			) VALUES (
@@ -48,10 +48,10 @@ func (r *AspRepositoryImpl) Create(param *entity.Asp) error {
 				?
 		)`,
 		utility.CreateUUID(),
-		"",
-		"ゲスト",
-		// param.Email,
-		// param.Password,
+		param.UserId,
+		param.Service,
+		param.Url,
+		param.Price,
 		time.Now(),
 		time.Now(),
 	)

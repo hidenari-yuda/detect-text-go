@@ -57,7 +57,7 @@ type PresentRepository interface {
 	Create(param *entity.Present) error
 	Update(param *entity.Present) error
 	GetById(id uint) (*entity.Present, error)
-	GetByPriceAndService(present *entity.Present) ([]*entity.Present, error)
+	GetByPointAndService(present *entity.Present) ([]*entity.Present, error)
 	// GetListByUserId(userId uint) ([]*entity.Present, error)
 	GetListByReceiptPictureId(receiptPictureId uint) ([]*entity.Present, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.Present, error)

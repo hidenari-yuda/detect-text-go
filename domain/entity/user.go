@@ -13,6 +13,7 @@ type User struct {
 	PictureUrl    string    `json:"picture_url"`
 	StatusMessage string    `json:"status_message"`
 	Language      string    `json:"language"`
+	Point         uint      `db:"point" json:"point"`
 	Name          string    `db:"name" json:"name"`
 	Email         string    `db:"email" json:"email"`
 	Password      string    `db:"password" json:"password"`
@@ -37,6 +38,8 @@ func NewUser() *User {
 }
 
 type SignUpParam struct {
+	FirebaseId    string `json:"firebase_id" validate:"required"`
+	Name          string `json:"name" validate:"required"`
 	Email         string `db:"email" json:"email"`
 	Password      string `db:"password" json:"password"`
 	LineUserId    string `db:"line_user_id" json:"line_user_id"`

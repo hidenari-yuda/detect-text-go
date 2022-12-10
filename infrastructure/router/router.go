@@ -61,6 +61,7 @@ func (r *Router) SetUp() *Router {
 	var origins = []string{
 		"http://localhost:9090",
 		"http://localhost:3000",
+		"http://localhost:8080",
 		"https://paychan-server.com",
 		"https://app.paychan-server.com",
 		"https://api.paychan-server.com",
@@ -151,6 +152,8 @@ func (r *Router) SetUp() *Router {
 
 		noAuthAPI.POST("/present", presentRoutes.Create(db, firebase))
 
+		noAuthAPI.DELETE("/expired", presentRoutes.DeleteByExpired(db, firebase))
+
 	}
 
 	/****************************************************************************************/
@@ -163,9 +166,44 @@ func (r *Router) SetUp() *Router {
 
 	}
 
+	/****************************************************************************************/
+	/// PresentAPI
+	//
+	presentAPI := noAuthAPI.Group("/present")
+	{
+
+		// create
+		presentAPI.POST("", presentRoutes.Create(db, firebase))
+
+		// update
+		presentAPI.PUT("", presentRoutes.Update(db, firebase))
+
+		// getbyId
+		presentAPI.GET("/:id", presentRoutes.GetById(db, firebase))
+
+		// getbyLineUserId
+		presentAPI.GET("/line_user_id/:line_user_id", presentRoutes.GetByLineUserId(db, firebase))
+
+		// ユーザーのログイン
+		presentAPI.GET("/all", presentRoutes.GetAll(db, firebase))
+
+	}
+
+	/****************************************************************************************/
+	/// AdminAPI
+	//
+	// adminAPI := api.Group("admin")
+	// {
+	// 	adminAPI.GET("/healthz", func(c echo.Context) error {
+	// 		return c.NoContent(http.StatusOK)
+	// 	})
+
+	// 	adminAPI.GET("/users", userRoutes.GetAll(db, firebase))
+	// }
+
 	return r
 }
 
 func (r *Router) Start() {
-	r.Engine.Start(fmt.Sprintf(":%d", 9090))
+	r.Engine.Start(fmt.Sprintf(":%d", 8080))
 }

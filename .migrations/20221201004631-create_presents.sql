@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS presents (
   user_id INT NOT NULL,
   receipt_picture_id INT NOT NULL,
   payment_service INT NOT NULL DEFAULT 0,
-  price INT NOT NULL DEFAULT 1,
+  point INT NOT NULL DEFAULT 1,
   url VARCHAR(255) NOT NULL,
   expirary DATETIME NOT NULL,
   created_at DATETIME NOT NULL,

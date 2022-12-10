@@ -32,10 +32,11 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 		r.Name+"Create",
 		`INSERT INTO Presents (
 			uuid,
-			firebase_id,
-			name, 
-			email, 
-			password,
+			user_id,
+			receipt_picture_id,
+			payment_service,
+			point,
+			url,
 			created_at,
 			updated_at
 			) VALUES (
@@ -45,13 +46,15 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 				?,
 				?,
 				?,
+				?,
 				?
 		)`,
 		utility.CreateUUID(),
-		"",
-		"ゲスト",
-		// param.Email,
-		// param.Password,
+		param.UserId,
+		param.ReceiptPictureId,
+		param.PaymentService,
+		param.Point,
+		param.Url,
 		time.Now(),
 		time.Now(),
 	)
@@ -71,15 +74,17 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 		SET
 			user_id = ?,
 			receipt_picture_id = ?,
-			price = ?,
 			payment_service = ?,
+			point = ?,
+			url = ?,
 			updated_at = ?
 		WHERE
 			id = ?`,
 		present.UserId,
 		present.ReceiptPictureId,
-		present.Price,
 		present.PaymentService,
+		present.Point,
+		present.Url,
 		time.Now(),
 		present.Id,
 	)
@@ -98,7 +103,7 @@ func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
 	err := r.executer.Get(
 		r.Name+"GetById",
 		&present,
-		"SELECT * FROM Presents WHERE id = ?",
+		"SELECT * FROM presents WHERE id = ?",
 		id,
 	)
 
@@ -111,21 +116,21 @@ func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
 	return &present, nil
 }
 
-func (r *PresentRepositoryImpl) GetByPriceAndService(present *entity.Present) ([]*entity.Present, error) {
+func (r *PresentRepositoryImpl) GetByPointAndService(present *entity.Present) ([]*entity.Present, error) {
 	var (
 		presentList []*entity.Present
 	)
 	err := r.executer.Select(
-		r.Name+"GetByPriceAndService",
+		r.Name+"GetByPointAndService",
 		&presentList, `
 		SELECT * 
-		FROM Presents 
-		WHERE price >= ? 
-		AND price <= ?
+		FROM presents 
+		WHERE Point >= ? 
+		AND point <= ?
 		AND payment_service = ?
-		ORDER BY price ASC
+		ORDER BY point ASC
 		`,
-		present.Price, present.Price+20, present.PaymentService,
+		present.Point, present.Point+20, present.PaymentService,
 	)
 
 	if err != nil {

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS parchased_items (
   name VARCHAR(255) NOT NULL,
   price INT NOT NULL DEFAULT 0,
   number INT NOT NULL DEFAULT 0,
+  detected_text VARCHAR(255) NOT NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),

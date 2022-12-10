@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS payment_methods (
   user_id INT NOT NULL,
   message_id VARCHAR(255) NOT NULL,
   message_type INT NOT NULL, -- 0: text, 1: image, 2: video, 3: audio, 4: file, 5: location, 6: sticker, 7: contact (default: 0)
-  text_message VARCHAR(255) NOT NULL, -- メッセージ
+  text_message TEXT NOT NULL, -- メッセージ
   package_id VARCHAR(255) NOT NULL, -- スタンプの表示に使用するID
   sticker_id VARCHAR(255) NOT NULL, -- スタンプの表示に使用するID
   original_content_url VARCHAR(255) NOT NULL, -- 画像ファイル or 動画ファイル or 音声ファイルのUrl

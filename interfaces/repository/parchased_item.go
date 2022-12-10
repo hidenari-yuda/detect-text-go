@@ -32,10 +32,10 @@ func (r *ParchasedItemRepositoryImpl) Create(param *entity.ParchasedItem) error 
 		"SignUp",
 		`INSERT INTO parchased_items (
 			uuid,
-			firebase_id,
-			name, 
-			email, 
-			password,
+			receipt_id,
+			name,
+			price,
+			number,
 			created_at,
 			updated_at
 			) VALUES (
@@ -45,13 +45,13 @@ func (r *ParchasedItemRepositoryImpl) Create(param *entity.ParchasedItem) error 
 				?,
 				?,
 				?,
-				?
+				?,
 		)`,
 		utility.CreateUUID(),
-		"",
-		"ゲスト",
-		// param.Email,
-		// param.Password,
+		param.ReceiptId,
+		param.Name,
+		param.Price,
+		param.Number,
 		time.Now(),
 		time.Now(),
 	)

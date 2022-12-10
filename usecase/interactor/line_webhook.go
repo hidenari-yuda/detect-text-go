@@ -84,7 +84,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				}
 
 				// プレゼントを取得
-				presentList, err := i.presentRepository.GetByPriceAndService(presentPrice)
+				presentList, err := i.presentRepository.GetByPointAndService(presentPrice)
 				if err != nil || len(presentList) == 0 {
 					cfg, err := config.New()
 					botToAdmin, err := linebot.New(
@@ -99,7 +99,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
 								user.LineName,
 								user.StatusMessage,
-								presentPrice.Price,
+								presentPrice.Point,
 								convertPaymentServiceToStr(presentPrice.PaymentService),
 								err,
 							),
@@ -114,7 +114,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					event.ReplyToken,
 					linebot.NewTextMessage(fmt.Sprintf(
 						"チェックが完了したトン！\n\n    %v円分のプレゼントを%vで送るトン！\n\n  以下のリンクから受け取ってね！\n\n    %v",
-						presentPrice.Price,
+						presentPrice.Point,
 						convertPaymentServiceToStr(presentPrice.PaymentService),
 						presentList[0].Url,
 					)),
@@ -133,7 +133,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					Id:               presentList[0].Id,
 					UserId:           user.Id,
 					ReceiptPictureId: receiptPicture.Id,
-					Price:            presentPrice.Price,
+					Point:            presentList[0].Point,
 					PaymentService:   presentList[0].PaymentService,
 					Url:              presentList[0].Url,
 				})

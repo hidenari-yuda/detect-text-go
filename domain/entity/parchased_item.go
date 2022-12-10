@@ -3,6 +3,9 @@ package entity
 import "time"
 
 type ParchasedItem struct {
+	Id        uint      `db:"id" json:"id"`
+	Uuid      string    `db:"uuid" json:"uuid"`
+	ReceiptId uint      `db:"receipt_id" json:"receipt_id"`
 	Name      string    `db:"name" json:"name"`     // 商品名
 	Price     uint      `db:"price" json:"price"`   // 価格
 	Number    uint      `db:"number" json:"number"` // 個数

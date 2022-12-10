@@ -32,10 +32,8 @@ func (r *PaymentMethodRepositoryImpl) Create(param *entity.PaymentMethod) error 
 		"SignUp",
 		`INSERT INTO payment_methods (
 			uuid,
-			firebase_id,
-			name, 
-			email, 
-			password,
+			user_id,
+			payment_service,
 			created_at,
 			updated_at
 			) VALUES (
@@ -43,15 +41,11 @@ func (r *PaymentMethodRepositoryImpl) Create(param *entity.PaymentMethod) error 
 				?,
 				?, 
 				?,
-				?,
-				?,
 				?
 		)`,
 		utility.CreateUUID(),
-		"",
-		"ゲスト",
-		// param.Email,
-		// param.Password,
+		param.UserId,
+		param.PaymentService,
 		time.Now(),
 		time.Now(),
 	)

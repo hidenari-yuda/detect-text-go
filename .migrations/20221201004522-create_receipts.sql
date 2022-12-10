@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS receipts (
   uuid VARCHAR(36) NOT NULL UNIQUE,
   receipt_picture_id INT NOT NULL,
   store_name VARCHAR(255) NOT NULL,
-  price INT NOT NULL DEFAULT 0,
+  total_price INT NOT NULL DEFAULT 0,
   purchased_at DATETIME,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,

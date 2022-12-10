@@ -20,5 +20,5 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 COPY --from=builder /go/src/app/.conf /.conf
 COPY --from=builder /go/src/app/.migrations /.migrations
 COPY --from=builder /go/src/app/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
-EXPOSE 9090
+EXPOSE 8080
 ENTRYPOINT ["/go/bin/app"]
