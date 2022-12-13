@@ -33,6 +33,7 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 		`INSERT INTO Presents (
 			uuid,
 			user_id,
+			line_user_id,
 			receipt_picture_id,
 			payment_service,
 			point,
@@ -47,10 +48,12 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 				?,
 				?,
 				?,
+				?,
 				?
 		)`,
 		utility.CreateUUID(),
 		param.UserId,
+		param.LineUserId,
 		param.ReceiptPictureId,
 		param.PaymentService,
 		param.Point,
@@ -73,6 +76,7 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 		`UPDATE Presents
 		SET
 			user_id = ?,
+			line_user_id = ?,
 			receipt_picture_id = ?,
 			payment_service = ?,
 			point = ?,
@@ -81,6 +85,7 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 		WHERE
 			id = ?`,
 		present.UserId,
+		present.LineUserId,
 		present.ReceiptPictureId,
 		present.PaymentService,
 		present.Point,

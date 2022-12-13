@@ -29,7 +29,7 @@ func NewParchasedItemRepositoryImpl(ex interfaces.SQLExecuter) usecase.Parchased
 
 func (r *ParchasedItemRepositoryImpl) Create(param *entity.ParchasedItem) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO parchased_items (
 			uuid,
 			receipt_id,
@@ -63,19 +63,43 @@ func (r *ParchasedItemRepositoryImpl) Create(param *entity.ParchasedItem) error 
 	return nil
 }
 
+func (r *ParchasedItemRepositoryImpl) Update(param *entity.ParchasedItem) error {
+	_, err := r.executer.Exec(
+		r.Name+"Update",
+		`UPDATE parchased_items SET
+			receipt_id = ?,
+			name = ?,
+			price = ?,
+			number = ?,
+			updated_at = ?
+			WHERE id = ?`,
+		param.ReceiptId,
+		param.Name,
+		param.Price,
+		param.Number,
+		time.Now(),
+		param.Id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *ParchasedItemRepositoryImpl) GetById(id uint) (*entity.ParchasedItem, error) {
 	var (
 		ParchasedItem entity.ParchasedItem
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&ParchasedItem,
 		"SELECT * FROM parchased_items WHERE id = ?",
 		id,
 	)
 
 	if err != nil {
-		err = fmt.Errorf("failed to get ParchasedItem by firebase id: %w", err)
 		fmt.Println(err)
 		return nil, err
 	}
@@ -88,7 +112,7 @@ func (r *ParchasedItemRepositoryImpl) GetListByReceiptId(receiptId uint) ([]*ent
 		ParchasedItemList []*entity.ParchasedItem
 	)
 	err := r.executer.Select(
-		"GetByLineParchasedItemId",
+		r.Name+"GetListByReceiptId",
 		&ParchasedItemList, `
 		SELECT * 
 		FROM parchased_items 
@@ -114,7 +138,7 @@ func (r *ParchasedItemRepositoryImpl) GetListByLineUserId(lineUserId string) ([]
 		ParchasedItemList []*entity.ParchasedItem
 	)
 	err := r.executer.Select(
-		"GetByLineParchasedItemId",
+		r.Name+"GetListByLineUserId",
 		&ParchasedItemList, `
 		SELECT * 
 		FROM parchased_items 

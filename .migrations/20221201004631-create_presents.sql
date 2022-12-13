@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS presents (
   id INT NOT NULL AUTO_INCREMENT UNIQUE,
   uuid VARCHAR(36) NOT NULL UNIQUE,
   user_id INT NOT NULL,
+  line_user_id VARCHAR(255) NOT NULL,s
   receipt_picture_id INT NOT NULL,
   payment_service INT NOT NULL DEFAULT 0,
   point INT NOT NULL DEFAULT 1,

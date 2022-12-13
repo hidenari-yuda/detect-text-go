@@ -12,19 +12,20 @@ import (
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
 )
 
-func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPicture) (*entity.ReceiptPicture, *entity.Present, error) {
-	var (
-		receiptPicture *entity.ReceiptPicture
-		present        *entity.Present
-		err            error
-	)
+func checkReceipt(
+	content io.ReadCloser,
+	receiptPictureList []*entity.ReceiptPicture,
+) (
+	receiptPicture *entity.ReceiptPicture,
+	present *entity.Present,
+	err error) {
 
 	byteData, err := io.ReadAll(content)
 	if err != nil {
 		return receiptPicture, present, err
 	}
 
-	filePath := fmt.Sprint("./public/snapshot/", time.Now(), "-receipt.jpg") // ファイル名をユニークにする
+	filePath := fmt.Sprint("./public/snapshot/", time.Now().Format("20060102150405"), "-receipt.jpg") // ファイル名をユニークにする
 
 	os.WriteFile(filePath, byteData, 0644)
 
@@ -44,7 +45,7 @@ func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPic
 	}
 	defer file.Close()
 
-	image, err := vision.NewImageFromReader(file)
+	image, err := vision.NewImageFromReader(content)
 	if err != nil {
 		return receiptPicture, present, err
 	}
@@ -95,12 +96,15 @@ func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPic
 		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // nimoca
 	)
 
-	if strMap["支払い履歴"] || strMap["過去1ヶ月"] {
+	if strMap["取引履歴"] || strMap["PayPay"] {
 		receiptPicture.Service = 0
-	} else if strMap["取引履歴"] || strMap["PayPay"] {
+		receiptPicture.PaymentService = 0
+	} else if strMap["支払い履歴"] || strMap["過去1ヶ月"] {
 		receiptPicture.Service = 1
+		receiptPicture.PaymentService = 0
 	} else if strMap["出品"] || strMap["毎月のご利用状況"] {
 		receiptPicture.Service = 2
+		receiptPicture.PaymentService = 0
 	}
 
 	// strings.Contains(annotations[0].Description, "合計", "円", "¥")
@@ -126,20 +130,28 @@ func checkReceipt(content io.ReadCloser, receiptPictureList []*entity.ReceiptPic
 		// receipt.ParchasedItems = append(receipt.ParchasedItems, parchasedItem)
 	}
 
-	len := len(annotations)
-	present = &entity.Present{
-		Point: uint(len),
+	var point uint
+	// len := annotations[0].BoundingPoly.Vertices[2].X - annotations[0].BoundingPoly.Vertices[0].X
+	len := len(annotations[0].Description)
+	if len < 50 {
+		point = 3
+	} else if len < 100 {
+		point = 5
+	} else if len < 150 {
+		point = 7
+	} else if len < 200 {
+		point = 10
 	}
 
-	fmt.Println("len is:", present)
+	present = &entity.Present{
+		Point: point,
+	}
+
+	fmt.Println("len is:", len)
 
 	// dbに保存
 	return receiptPicture, present, nil
 }
-
-// func detectTextFromReceipt(content io.ReadCloser) (uint, error) {
-// 	return receiptPicture, present, nil
-// }
 
 func ContainsList(s string, list ...string) (strMap map[string]bool) {
 	for _, v := range list {

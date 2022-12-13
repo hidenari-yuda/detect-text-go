@@ -57,6 +57,26 @@ func (r *PaymentMethodRepositoryImpl) Create(param *entity.PaymentMethod) error 
 	return nil
 }
 
+// update
+func (r *PaymentMethodRepositoryImpl) Update(param *entity.PaymentMethod) error {
+	_, err := r.executer.Exec(
+		"Update",
+		`UPDATE payment_methods SET
+			payment_service = ?,
+			updated_at = ?
+			WHERE id = ?`,
+		param.PaymentService,
+		time.Now(),
+		param.Id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *PaymentMethodRepositoryImpl) GetById(id uint) (*entity.PaymentMethod, error) {
 	var (
 		PaymentMethod entity.PaymentMethod

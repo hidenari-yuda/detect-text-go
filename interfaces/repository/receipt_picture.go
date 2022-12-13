@@ -75,6 +75,36 @@ func (r *ReceiptPictureRepositoryImpl) Create(param *entity.ReceiptPicture) erro
 	return nil
 }
 
+// update
+func (r *ReceiptPictureRepositoryImpl) Update(param *entity.ReceiptPicture) error {
+	_, err := r.executer.Exec(
+		"Update",
+		`UPDATE ReceiptPictures SET
+			url = ?,
+			detected_text = ?,
+			service = ?,
+			payment_service = ?,
+			point = ?,
+			total_price = ?,
+			updated_at = ?
+		WHERE id = ?`,
+		param.Url,
+		param.DetectedText,
+		param.Service,
+		param.PaymentService,
+		param.Point,
+		param.TotalPrice,
+		time.Now(),
+		param.Id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *ReceiptPictureRepositoryImpl) GetById(id uint) (*entity.ReceiptPicture, error) {
 	var (
 		ReceiptPicture entity.ReceiptPicture

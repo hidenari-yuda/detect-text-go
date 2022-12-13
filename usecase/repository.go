@@ -5,6 +5,7 @@ import "github.com/hidenari-yuda/paychan-server/domain/entity"
 type UserRepository interface {
 	// Gest API
 	SignUp(param *entity.SignUpParam) error
+	SignIn(email, password string) (user *entity.User, err error)
 	GetByFirebaseId(firebaseId string) (*entity.User, error)
 	GetByLineUserId(lineUserId string) (*entity.User, error)
 }
@@ -12,6 +13,7 @@ type UserRepository interface {
 type PaymentMethodRepository interface {
 	// Gest API
 	Create(param *entity.PaymentMethod) error
+	Update(param *entity.PaymentMethod) error
 	// Delete(id uint) error
 	GetById(id uint) (*entity.PaymentMethod, error)
 	// GetListByUserId(userId uint) ([]*entity.PaymentMethod, error)
@@ -29,6 +31,7 @@ type LineMessageRepository interface {
 type ReceiptPictureRepository interface {
 	// Gest API
 	Create(param *entity.ReceiptPicture) error
+	Update(param *entity.ReceiptPicture) error
 	GetById(id uint) (*entity.ReceiptPicture, error)
 	// GetListByUserId(userId uint) ([]*entity.ReceiptPicture, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.ReceiptPicture, error)
@@ -38,6 +41,7 @@ type ReceiptPictureRepository interface {
 type ReceiptRepository interface {
 	// Gest API
 	Create(param *entity.Receipt) error
+	Update(param *entity.Receipt) error
 	GetById(id uint) (*entity.Receipt, error)
 	// GetListByUserId(userId uint) ([]*entity.Receipt, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.Receipt, error)
@@ -47,6 +51,7 @@ type ReceiptRepository interface {
 type ParchasedItemRepository interface {
 	// Gest API
 	Create(param *entity.ParchasedItem) error
+	Update(param *entity.ParchasedItem) error
 	GetById(id uint) (*entity.ParchasedItem, error)
 	GetListByReceiptId(receiptId uint) ([]*entity.ParchasedItem, error)
 	GetListByLineUserId(lineUserId string) ([]*entity.ParchasedItem, error)

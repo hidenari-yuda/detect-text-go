@@ -73,19 +73,21 @@ func (r *UserRepositoryImpl) SignUp(param *entity.SignUpParam) error {
 	return nil
 }
 
-// func (r *UserRepositoryImpl) SignIn(param *entity.SignInParam) (user *entity.User, err error) {
-// 	err = r.executer.Get(
-// 		"SignIn",
-// 		user,
-// 		"SELECT * FROM users WHERE email = ? AND password = ?",
-// 		param.Email, param.Password)
+func (r *UserRepositoryImpl) SignIn(email, password string) (user *entity.User, err error) {
+	err = r.executer.Get(
+		"SignIn",
+		user,
+		"SELECT * FROM users WHERE email = ? AND password = ?",
+		email,
+		password,
+	)
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	if err != nil {
+		return nil, err
+	}
 
-// 	return user, nil
-// }
+	return user, nil
+}
 
 func (r *UserRepositoryImpl) GetByFirebaseId(firebaseId string) (*entity.User, error) {
 	var (

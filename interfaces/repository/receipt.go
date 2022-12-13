@@ -63,6 +63,30 @@ func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 	return nil
 }
 
+// update
+func (r *ReceiptRepositoryImpl) Update(param *entity.Receipt) error {
+	_, err := r.executer.Exec(
+		"Update",
+		`UPDATE Receipts SET
+			store_name = ?,
+			total_price = ?,
+			purchased_at = ?,
+			updated_at = ?
+			WHERE id = ?`,
+		param.StoreName,
+		param.TotalPrice,
+		param.PurchasedAt,
+		time.Now(),
+		param.Id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *ReceiptRepositoryImpl) GetById(id uint) (*entity.Receipt, error) {
 	var (
 		Receipt entity.Receipt
@@ -75,8 +99,6 @@ func (r *ReceiptRepositoryImpl) GetById(id uint) (*entity.Receipt, error) {
 	)
 
 	if err != nil {
-		err = fmt.Errorf("failed to get Receipt by firebase id: %w", err)
-		fmt.Println(err)
 		return nil, err
 	}
 
