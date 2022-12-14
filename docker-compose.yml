@@ -5,7 +5,7 @@ networks:
 services:
   db:
     container_name: paychan_local_db
-    image: mysql:8.0.30
+    image: mysql:8.0
     networks:
       - paychan-local-network
     ports:
@@ -14,6 +14,7 @@ services:
       - .conf/conf.d:/etc/mysql/conf.d
     environment:
       MYSQL_DATABASE: paychan_local
+      MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: password
   butler:
     build:

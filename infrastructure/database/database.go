@@ -31,15 +31,54 @@ func NewDB(dbConfig config.DB, printsQuery bool) *DB {
 		err           error
 		count         = 1
 		maxRetryCount = 15
+		url           string
 	)
 
-	url := fmt.Sprintf("%s:%s@tcp([%s]:%d)/%s?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true",
+	// 本番環境の場合は、Cloud SQL Proxyを使用する
+	cfg, err := config.New()
+	log.Println("開発環境は:", cfg.App.Env)
+
+	// if cfg.App.Env == "production" {
+	url = fmt.Sprintf("%s:%s@unix(/%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_general_ci",
 		dbConfig.User,
 		dbConfig.Pass,
-		dbConfig.Host,
-		dbConfig.Port,
+		dbConfig.InstanceUnixSocket,
 		dbConfig.Name,
 	)
+
+	// ローカル環境の場合は、Cloud SQL Proxyを使用しない
+	// } else {
+	// 	url = fmt.Sprintf("%s:%s@tcp([%s]:%d)/%s?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true",
+	// 		dbConfig.User,
+	// 		dbConfig.Pass,
+	// 		dbConfig.Host,
+	// 		dbConfig.Port,
+	// 		dbConfig.Name,
+	// 	)
+	// }
+
+	// mustGetenv := func(k string) string {
+	// 	v := os.Getenv(k)
+	// 	if v == "" {
+	// 		log.Fatalf("Warning: %s environment variable not set.", k)
+	// 	}
+	// 	return v
+	// }
+	// // Note: Saving credentials in environment variables is convenient, but not
+	// // secure - consider a more secure solution such as
+	// // Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
+	// // keep secrets safe.
+	// var (
+	// 	dbUser         = mustGetenv("DB_USER")              // e.g. 'my-db-user'
+	// 	dbPwd          = mustGetenv("DB_PASS")              // e.g. 'my-db-password'
+	// 	dbName         = mustGetenv("DB_NAME")              // e.g. 'my-database'
+	// 	unixSocketPath = mustGetenv("INSTANCE_UNIX_SOCKET") // e.g. '/cloudsql/project:region:instance'
+	// )
+
+	// dbURI := fmt.Sprintf("%s:%s@unix(/%s)/%s?parseTime=true",
+	// 	dbUser, dbPwd, unixSocketPath, dbName)
+
+	// /cloudsql/<project-id>:<region>:<instance-id>
 
 	for {
 		fmt.Println("Trying to connect DB...", url)
@@ -315,3 +354,46 @@ func measureLatency(name, query string, args ...interface{}) func() {
 		fmt.Println(string(b))
 	}
 }
+
+// func connectWithConnector() (*sql.DB, error) {
+// 	mustGetenv := func(k string) string {
+// 		v := os.Getenv(k)
+// 		if v == "" {
+// 			log.Fatalf("Warning: %s environment variable not set.", k)
+// 		}
+// 		return v
+// 	}
+// 	// Note: Saving credentials in environment variables is convenient, but not
+// 	// secure - consider a more secure solution such as
+// 	// Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
+// 	// keep secrets safe.
+// 	var (
+// 		dbUser                 = mustGetenv("DB_USER")                  // e.g. 'my-db-user'
+// 		dbPwd                  = mustGetenv("DB_PASS")                  // e.g. 'my-db-password'
+// 		dbName                 = mustGetenv("DB_NAME")                  // e.g. 'my-database'
+// 		instanceConnectionName = mustGetenv("INSTANCE_CONNECTION_NAME") // e.g. 'project:region:instance'
+// 		usePrivate             = os.Getenv("PRIVATE_IP")
+// 	)
+
+// 	d, err := cloudsqlconn.NewDialer(context.Background())
+// 	if err != nil {
+// 		return nil, fmt.Errorf("cloudsqlconn.NewDialer: %v", err)
+// 	}
+// 	var opts []cloudsqlconn.DialOption
+// 	if usePrivate != "" {
+// 		opts = append(opts, cloudsqlconn.WithPrivateIP())
+// 	}
+// 	mysql.RegisterDialContext("cloudsqlconn",
+// 		func(ctx context.Context, addr string) (net.Conn, error) {
+// 			return d.Dial(ctx, instanceConnectionName, opts...)
+// 		})
+
+// 	dbURI := fmt.Sprintf("%s:%s@cloudsqlconn(localhost:3306)/%s?parseTime=true",
+// 		dbUser, dbPwd, dbName)
+
+// 	dbPool, err := sql.Open("mysql", dbURI)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("sql.Open: %v", err)
+// 	}
+// 	return dbPool, nil
+// }

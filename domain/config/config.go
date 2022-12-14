@@ -32,11 +32,12 @@ type App struct {
 }
 
 type DB struct {
-	Host string `required:"true" split_words:"true"`
-	Port int    `required:"true" split_words:"true"`
-	Name string `required:"true" split_words:"true"`
-	User string `required:"true" split_words:"true"`
-	Pass string `required:"true" split_words:"true"`
+	Host               string `required:"true" split_words:"true"`
+	Port               int    `required:"true" split_words:"true"`
+	Name               string `required:"true" split_words:"true"`
+	User               string `required:"true" split_words:"true"`
+	Pass               string `required:"true" split_words:"true"`
+	InstanceUnixSocket string `required:"true" split_words:"true"`
 }
 
 type Firebase struct {

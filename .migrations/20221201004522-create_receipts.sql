@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS receipts (
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),
-  INDEX (user_id),
   INDEX (receipt_picture_id)
 );
 

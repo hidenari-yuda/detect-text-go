@@ -3,7 +3,9 @@ LABEL maintainer="yhide327@gmail.com"
 WORKDIR /go/src/app
 ENV GOPATH /go
 ENV GO111MODULE on
+ENV APP_ENV='local' 
 COPY go.mod go.sum ./
 RUN go mod download
 CMD make run
+
 

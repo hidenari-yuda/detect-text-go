@@ -23,12 +23,6 @@ ADD CONSTRAINT receipt_pictures_user_id_fkey
 FOREIGN KEY (user_id) REFERENCES users(id) 
 ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE receipt_pictures
-ADD CONSTRAINT receipt_pictures_line_user_id_fkey
-FOREIGN KEY (line_user_id) REFERENCES line_users(id)
-ON DELETE CASCADE ON UPDATE CASCADE;
-
 -- +migrate Down
 ALTER TABLE receipt_pictures DROP FOREIGN KEY receipt_pictures_user_id_fkey;
-ALTER TABLE receipt_pictures DROP FOREIGN KEY receipt_pictures_line_user_id_fkey;
 DROP TABLE IF EXISTS receipt_pictures;

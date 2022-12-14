@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS parchased_items (
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),
-  INDEX (user_id),
   INDEX (receipt_id)
 );
 

@@ -18,12 +18,7 @@ ADD CONSTRAINT payment_methods_user_id_fkey
 FOREIGN KEY (user_id) REFERENCES users(id) 
 ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE payment_methods
-ADD CONSTRAINT payment_methods_line_user_id_fkey
-FOREIGN KEY (line_user_id) REFERENCES line_users(id)
-ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- +migrate Down
 ALTER TABLE payment_methods DROP FOREIGN KEY payment_methods_user_id_fkey;
-ALTER TABLE payment_methods DROP FOREIGN KEY payment_methods_line_user_id_fkey;
 DROP TABLE IF EXISTS payment_methods;

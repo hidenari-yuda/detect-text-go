@@ -2,19 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
 	"github.com/hidenari-yuda/paychan-server/domain/utility"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/batch"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
-	"github.com/hidenari-yuda/paychan-server/infrastructure/driver"
 	infrastructure "github.com/hidenari-yuda/paychan-server/infrastructure/router"
-	"github.com/joho/godotenv"
 
 	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/labstack/echo/v4"
@@ -24,11 +20,11 @@ import (
 func init() {
 	time.Local = utility.Tokyo
 
-	if os.Getenv("APP_ENV") == "local" {
-		if err := godotenv.Load(); err != nil {
-			panic("Failed to load .env file")
-		}
-	}
+	// if os.Getenv("APP_ENV") == "local" {
+	// 	if err := godotenv.Load(); err != nil {
+	// 		panic("Failed to load .env file")
+	// 	}
+	// }
 }
 
 func main() {
@@ -47,9 +43,9 @@ func main() {
 		}
 		// cache := driver.NewRedisCacheImpl(cfg.Redis)
 		if cfg.App.Env == "local" {
-			firebase := driver.NewFirebaseImpl(cfg.Firebase)
-			fmt.Println("getTestUserToken:", uuid.New().String())
-			getTestUserToken(firebase, uuid.New().String())
+			// firebase := driver.NewFirebaseImpl(cfg.Firebase)
+			// fmt.Println("getTestUserToken:", uuid.New().String())
+			// getTestUserToken(firebase, uuid.New().String())
 		}
 		r := infrastructure.NewRouter(cfg)
 
@@ -59,7 +55,7 @@ func main() {
 		}
 
 		// GCPの場合は環境変数からポートを取得 それ以外は8080
-		if os.Getenv("APP_PORT") == "" {
+		if cfg.App.Port < 1 {
 			cfg.App.Port = 8080
 		}
 
