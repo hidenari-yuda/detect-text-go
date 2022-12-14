@@ -52,6 +52,10 @@ func NewPresentInteractorImpl(
 }
 
 func (i *PresentInteractorImpl) Create(param *entity.Present) (present *entity.Present, err error) {
+	// if param.Expirary == nil {
+	// 	param.Expirary = utility.GetNow().AddDate(0, 0, 1)
+	// }
+
 	present = param
 	// ユーザー登録
 	err = i.presentRepository.Create(present)

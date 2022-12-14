@@ -38,6 +38,8 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 			payment_service,
 			point,
 			url,
+			expirary,
+			used,
 			created_at,
 			updated_at
 			) VALUES (
@@ -58,6 +60,8 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 		param.PaymentService,
 		param.Point,
 		param.Url,
+		param.Expirary,
+		param.Used,
 		time.Now(),
 		time.Now(),
 	)
@@ -81,6 +85,8 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 			payment_service = ?,
 			point = ?,
 			url = ?,
+			expirary = ?,
+			used = ?,
 			updated_at = ?
 		WHERE
 			id = ?`,
@@ -90,6 +96,8 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 		present.PaymentService,
 		present.Point,
 		present.Url,
+		present.Expirary,
+		present.Used,
 		time.Now(),
 		present.Id,
 	)
@@ -133,6 +141,7 @@ func (r *PresentRepositoryImpl) GetByPointAndService(present *entity.Present) ([
 		WHERE Point >= ? 
 		AND point <= ?
 		AND payment_service = ?
+		AND used = 0
 		ORDER BY point ASC
 		`,
 		present.Point, present.Point+20, present.PaymentService,

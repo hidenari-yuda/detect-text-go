@@ -11,6 +11,7 @@ import (
 func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool, err error) {
 
 	for _, event := range param.Events {
+
 		// 既存のユーザーかどうか確認
 		user, err := i.userRepository.GetByLineUserId(event.Source.UserID)
 		if err != nil {
@@ -32,18 +33,18 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 			}
 		}
 
-		// 今日登録されたレシートのリストを取得する
-		receiptPictures, err := i.receiptPictureRepository.GetListByToday(event.Source.UserID)
-		if err != nil {
-			return ok, fmt.Errorf("今日登録されたレシートのリストの取得エラー: %w", err)
-		}
-
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 
 			// 画像データの場合
 			case *linebot.ImageMessage:
 				fmt.Println("image message:", message)
+
+				// 今日登録されたレシートのリストを取得する
+				receiptPictures, err := i.receiptPictureRepository.GetListByToday(event.Source.UserID)
+				if err != nil {
+					return ok, fmt.Errorf("今日登録されたレシートのリストの取得エラー: %w", err)
+				}
 
 				// コンテンツ取得
 				content, err := param.Bot.GetMessageContent(message.ID).Do()
@@ -60,7 +61,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 
 					if _, err = param.Bot.ReplyMessage(
 						event.ReplyToken,
-						linebot.NewTextMessage(fmt.Sprint("レシートが認識できませんでした。\nもう1度やり直してトン")),
+						linebot.NewTextMessage(fmt.Sprint("レシートが認識できませんでした。\nもう1度やり直してペイ")),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
 					}
@@ -74,7 +75,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						event.ReplyToken,
 						linebot.NewTextMessage(
 							fmt.Sprintf(
-								"本日上限である10件のレシートが登録されています。\n\n%sさん、また明日来てトン！！",
+								"本日上限である10件のレシートが登録されています。\n\n%sさん、また明日来てペイ！！",
 								user.LineName,
 							),
 						)).Do(); err != nil {
@@ -84,39 +85,39 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				}
 
 				// プレゼントを取得
-				presentList, err := i.presentRepository.GetByPointAndService(presentPrice)
-				if err != nil || len(presentList) == 0 {
-					cfg, err := config.New()
-					botToAdmin, err := linebot.New(
-						cfg.Line.ChannelSecret,
-						cfg.Line.ChannelAccessToken,
-					)
+				// presentList, err := i.presentRepository.GetByPointAndService(presentPrice)
+				// if err != nil || len(presentList) == 0 {
+				cfg, err := config.New()
+				botToAdmin, err := linebot.New(
+					cfg.Line.ChannelSecret,
+					cfg.Line.ChannelAccessToken,
+				)
 
-					if _, eff := botToAdmin.PushMessage(
-						cfg.Line.AdminUserId,
-						linebot.NewTextMessage(
-							fmt.Sprintf(
-								"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
-								user.LineName,
-								user.StatusMessage,
-								presentPrice.Point,
-								convertPaymentServiceToStr(presentPrice.PaymentService),
-								err,
-							),
+				if _, eff := botToAdmin.PushMessage(
+					cfg.Line.AdminUserId,
+					linebot.NewTextMessage(
+						fmt.Sprintf(
+							"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
+							user.LineName,
+							user.StatusMessage,
+							presentPrice.Point,
+							convertPaymentServiceToStr(presentPrice.PaymentService),
+							err,
 						),
-					).Do(); eff != nil {
-						return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
-					}
-					return ok, fmt.Errorf("プレゼントの取得エラー: %w", err)
+					),
+				).Do(); eff != nil {
+					return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
 				}
+				// 	return ok, fmt.Errorf("プレゼントの取得エラー: %w", err)
+				// }
 
 				if _, err = param.Bot.ReplyMessage(
 					event.ReplyToken,
 					linebot.NewTextMessage(fmt.Sprintf(
-						"チェックが完了したトン！\n\n    %v円分のプレゼントを%vで送るトン！\n\n  以下のリンクから受け取ってね！\n\n    %v",
+						"チェックが完了したペイ！\n\n    %v円分のプレゼントを%vで送るペイ！\n\n  今までのポイントを還元したい際は「ポイントを還元」から受け取ってレシ！\n\n",
 						presentPrice.Point,
 						convertPaymentServiceToStr(presentPrice.PaymentService),
-						presentList[0].Url,
+						// presentList[0].Url,
 					)),
 				).Do(); err != nil {
 					return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
@@ -128,16 +129,6 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					return ok, fmt.Errorf("レシート情報の登録エラー: %w", err)
 				}
 
-				// ギフトをdbに保存する
-				err = i.presentRepository.Update(&entity.Present{
-					Id:               presentList[0].Id,
-					UserId:           user.Id,
-					ReceiptPictureId: receiptPicture.Id,
-					Point:            presentList[0].Point,
-					PaymentService:   presentList[0].PaymentService,
-					Url:              presentList[0].Url,
-				})
-
 				fmt.Println("image function is ok!!")
 
 				/********** 画像メッセージ以外の場合 **********/
@@ -145,17 +136,135 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 			case *linebot.TextMessage:
 				fmt.Println("text message:", message)
 
+				switch message.Text {
+
+				case "キャンペーン":
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントです。", user.Point)),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+					return ok, nil
+
+				case "保有ポイント":
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントです。", user.Point)),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+					return ok, nil
+
+				case "PayPayポイントに還元":
+					presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
+						Point:          user.Point,
+						PaymentService: 0,
+					})
+					if err != nil || len(presentList) == 0 {
+						cfg, err := config.New()
+						botToAdmin, err := linebot.New(
+							cfg.Line.ChannelSecret,
+							cfg.Line.ChannelAccessToken,
+						)
+
+						if _, eff := botToAdmin.PushMessage(
+							cfg.Line.AdminUserId,
+							linebot.NewTextMessage(
+								fmt.Sprintf(
+									"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
+									user.LineName,
+									user.StatusMessage,
+									user.Point,
+									"PayPay",
+									err,
+								),
+							),
+						).Do(); eff != nil {
+							return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
+						}
+					}
+
+					// ギフトをdbに保存する
+					err = i.presentRepository.Update(&entity.Present{
+						Id:     presentList[0].Id,
+						UserId: user.Id,
+						// ReceiptPictureId: receiptPicture.Id,
+						Point:          presentList[0].Point,
+						PaymentService: presentList[0].PaymentService,
+						Url:            presentList[0].Url,
+					})
+
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("PayPayポイントはこちらから確認できるペイ！\nhttps://paypay.ne.jp/point/"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+					return ok, nil
+
+				case "LINEポイントに還元":
+
+					presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
+						Point:          user.Point,
+						PaymentService: 1,
+					},
+					)
+					if err != nil || len(presentList) == 0 {
+						cfg, err := config.New()
+						botToAdmin, err := linebot.New(
+							cfg.Line.ChannelSecret,
+							cfg.Line.ChannelAccessToken,
+						)
+
+						if _, eff := botToAdmin.PushMessage(
+							cfg.Line.AdminUserId,
+							linebot.NewTextMessage(
+								fmt.Sprintf(
+									"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
+									user.LineName,
+									user.StatusMessage,
+									user.Point,
+									"PayPay",
+									err,
+								),
+							),
+						).Do(); eff != nil {
+							return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
+						}
+					}
+
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("LINEポイントはこちらから確認できるペイ！\nhttps://point.line.me/"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					// ギフトをdbに保存する
+					err = i.presentRepository.Update(&entity.Present{
+						Id:     presentList[0].Id,
+						UserId: user.Id,
+						// ReceiptPictureId: receiptPicture.Id,
+						Point:          presentList[0].Point,
+						PaymentService: presentList[0].PaymentService,
+						Url:            presentList[0].Url,
+					})
+					return ok, nil
+
+				}
+
 				if _, err := param.Bot.ReplyMessage(
 					event.ReplyToken,
-					linebot.NewTextMessage("テキストメッセージありがトン！\n"+"レシートの画像を送信してみてトン！"),
+					linebot.NewTextMessage("テキストメッセージありがペイ！\n"+"レシートの画像を送信してみてペイ！"),
 				).Do(); err != nil {
 					return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 				}
 
-				// DBにメッセージを保存する処理
-				err = i.lineMessageRepository.Create(&entity.LineMessage{
-					LineUserId: event.Source.UserID,
-				})
+				// // DBにメッセージを保存する処理
+				// err = i.lineMessageRepository.Create(&entity.LineMessage{
+				// 	LineUserId: event.Source.UserID,
+				// })
 
 			// スタンプの場合
 			case *linebot.StickerMessage:
@@ -163,7 +272,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 
 				if _, err := param.Bot.ReplyMessage(
 					event.ReplyToken,
-					linebot.NewTextMessage("スタンプありがトン！\n"+"レシートの画像を送信してみてトン！"),
+					linebot.NewTextMessage("スタンプありがペイ！\n"+"レシートの画像を送信してみてペイ！"),
 				).Do(); err != nil {
 					return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 				}
@@ -174,7 +283,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 
 				if _, err := param.Bot.ReplyMessage(
 					event.ReplyToken,
-					linebot.NewTextMessage("動画ありがトン！\n"+"レシートの画像を送信してみてトン！"),
+					linebot.NewTextMessage("動画ありがペイ！\n"+"レシートの画像を送信してみてペイ！"),
 				).Do(); err != nil {
 					return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 				}
@@ -185,7 +294,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 
 				if _, err := param.Bot.ReplyMessage(
 					event.ReplyToken,
-					linebot.NewTextMessage("音声メッセージありがトン！\n"+"レシートの画像を送信してみてトン！"),
+					linebot.NewTextMessage("音声メッセージありがペイ！\n"+"レシートの画像を送信してみてペイ！"),
 				).Do(); err != nil {
 					return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 				}

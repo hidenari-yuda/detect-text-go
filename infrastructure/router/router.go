@@ -132,8 +132,9 @@ func (r *Router) SetUp() *Router {
 	//
 
 	var (
-		userRoutes    = routes.UserRoutes{}
-		presentRoutes = routes.PresentRoutes{}
+		userRoutes     = routes.UserRoutes{}
+		presentRoutes  = routes.PresentRoutes{}
+		richMenuRoutes = routes.RichMenuRoutes{}
 	)
 
 	noAuthAPI := api.Group("api")
@@ -186,6 +187,23 @@ func (r *Router) SetUp() *Router {
 
 		// ユーザーのログイン
 		presentAPI.GET("/all", presentRoutes.GetAll(db, firebase))
+
+	}
+
+	/****************************************************************************************/
+	/// RichMenuAPI
+	//
+	richMenuAPI := noAuthAPI.Group("/rich_menu")
+	{
+
+		// create
+		richMenuAPI.POST("", richMenuRoutes.Create(db, firebase))
+
+		// createAlias
+		richMenuAPI.POST("/alias", richMenuRoutes.CreateAlias(db, firebase))
+
+		// getAll
+		richMenuAPI.GET("/all", richMenuRoutes.GetAll(db, firebase))
 
 	}
 
