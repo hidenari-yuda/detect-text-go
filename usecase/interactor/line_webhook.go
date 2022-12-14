@@ -141,7 +141,59 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				case "キャンペーン":
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
-						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントです。", user.Point)),
+						linebot.NewTemplateMessage(
+							"キャンペーン",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"キャンペーン",
+								"キャンペーンを確認するペイ！",
+								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"キャンペーン",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"キャンペーン",
+								"キャンペーンを確認するペイ！",
+								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"キャンペーン",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"キャンペーン",
+								"キャンペーンを確認するペイ！",
+								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"キャンペーン",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"キャンペーン",
+								"キャンペーンを確認するペイ！",
+								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+					return ok, nil
+
+				case "アンケート":
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"アンケート",
+								"アンケートを回答するペイ！",
+								linebot.NewURIAction("アンケートを回答するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							),
+						),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
