@@ -8,6 +8,9 @@ type UserRepository interface {
 	SignIn(email, password string) (user *entity.User, err error)
 	GetByFirebaseId(firebaseId string) (*entity.User, error)
 	GetByLineUserId(lineUserId string) (*entity.User, error)
+
+	// admin
+	GetAll() ([]*entity.User, error)
 }
 
 type PaymentMethodRepository interface {

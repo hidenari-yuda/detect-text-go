@@ -10,7 +10,7 @@ import (
 	"github.com/hidenari-yuda/paychan-server/domain/utility"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/batch"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
-	infrastructure "github.com/hidenari-yuda/paychan-server/infrastructure/router"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/router"
 
 	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/labstack/echo/v4"
@@ -47,7 +47,7 @@ func main() {
 			// fmt.Println("getTestUserToken:", uuid.New().String())
 			// getTestUserToken(firebase, uuid.New().String())
 		}
-		r := infrastructure.NewRouter(cfg)
+		r := router.NewRouter(cfg)
 
 		// // エラーハンドラー（dev or prdのみSlack通知）
 		if cfg.App.Env != "local" {

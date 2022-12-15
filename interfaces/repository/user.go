@@ -128,3 +128,23 @@ func (r *UserRepositoryImpl) GetByLineUserId(lineUserId string) (*entity.User, e
 
 	return &user, nil
 }
+
+// getAll
+func (r *UserRepositoryImpl) GetAll() ([]*entity.User, error) {
+	var (
+		users []*entity.User
+	)
+	err := r.executer.Select(
+		"GetAll",
+		&users,
+		"SELECT * FROM users ORDER BY id DESC",
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get all users: %w", err)
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return users, nil
+}

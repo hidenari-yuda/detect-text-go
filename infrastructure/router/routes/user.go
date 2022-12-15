@@ -23,6 +23,9 @@ type UserRoutes struct{}
 // 	SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 // 	SignIn(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 // 	GetByFirebaseToken(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
+
+//admin
+// 	GetAll(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 // 	GetLineWebHook(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error
 
 func (r *UserRoutes) SignUp(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
@@ -41,10 +44,11 @@ func (r *UserRoutes) SignUp(db *database.DB, firebase usecase.Firebase) func(c e
 		presenter, err := h.SignUp(&param)
 		if err != nil {
 			tx.Rollback()
-			return c.JSON(http.StatusInternalServerError, err)
+			renderJSON(c, presenter)
+			return err
 		}
 		tx.Commit()
-		c.JSON(http.StatusOK, presenter)
+		renderJSON(c, presenter)
 		return nil
 	}
 }
@@ -65,7 +69,8 @@ func (r *UserRoutes) SignIn(db *database.DB, firebase usecase.Firebase) func(c e
 		if err != nil {
 			err = fmt.Errorf("サインインエラー: %s:%w", err.Error(), entity.ErrRequestError)
 			fmt.Println(err)
-			return c.JSON(http.StatusInternalServerError, err)
+			renderJSON(c, presenter)
+			return err
 		}
 
 		renderJSON(c, presenter)
@@ -82,10 +87,11 @@ func (r *UserRoutes) GetByFirebaseToken(db *database.DB, firebase usecase.Fireba
 		h := di.InitializeUserHandler(db, firebase)
 		presenter, err := h.GetByFirebaseToken(firebaseToken)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			renderJSON(c, presenter)
+			return err
 		}
 
-		c.JSON(http.StatusOK, presenter)
+		renderJSON(c, presenter)
 		return nil
 	}
 }
@@ -99,10 +105,26 @@ func (r *UserRoutes) GetByLineUserId(db *database.DB, firebase usecase.Firebase)
 		h := di.InitializeUserHandler(db, firebase)
 		presenter, err := h.GetByLineUserId(lineUserId)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			renderJSON(c, presenter)
+			return err
 		}
 
-		c.JSON(http.StatusOK, presenter)
+		renderJSON(c, presenter)
+		return nil
+	}
+}
+
+/************************ admin ************************/
+func (r *UserRoutes) GetAll(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		h := di.InitializeUserHandler(db, firebase)
+		presenter, err := h.GetAll()
+		if err != nil {
+			renderJSON(c, presenter)
+			return err
+		}
+
+		renderJSON(c, presenter)
 		return nil
 	}
 }
@@ -112,7 +134,8 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 	return func(c echo.Context) error {
 		cfg, err := config.New()
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			fmt.Println(err)
+			return err
 		}
 
 		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
@@ -150,10 +173,10 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 			return fmt.Errorf("hash.Write(body)に失敗しました: %s", err.Error())
 		}
 
-		// Compare decoded signature and `hash.Sum(nil)` by using `hmac.Equal`
+		// リクエストのx-line-signatureとシークレットをハッシュ化したものが一致するか検証
 		if !hmac.Equal(decoded, hash.Sum(nil)) {
 			c.Response().WriteHeader(400)
-			return fmt.Errorf("署名キーが正しくありません: %s", err.Error())
+			return err
 		}
 
 		req.Body = io.NopCloser(bytes.NewBuffer(body)) // リクエストボディを再利用するためにリセット
@@ -193,10 +216,11 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 		h := di.InitializeUserHandler(db, firebase)
 		presenter, err := h.GetLineWebHook(param)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			renderJSON(c, presenter)
+			return err
 		}
 
-		c.JSON(http.StatusOK, presenter)
+		renderJSON(c, presenter)
 		return nil
 	}
 }

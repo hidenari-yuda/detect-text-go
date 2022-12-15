@@ -5,6 +5,7 @@ package di
 
 import (
 	"github.com/google/wire"
+	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/interfaces"
 	"github.com/hidenari-yuda/paychan-server/interfaces/handler"
 	"github.com/hidenari-yuda/paychan-server/interfaces/repository"
@@ -21,6 +22,13 @@ var wireSet = wire.NewSet(
 /**
 	Handler
 **/
+
+//Admin
+//
+func InitializeAdminHandler(db interfaces.SQLExecuter, appConfig config.App) (h handler.AdminHandler) {
+	wire.Build(wireSet)
+	return
+}
 
 // User
 //
@@ -39,6 +47,13 @@ func InitializePresentHandler(db interfaces.SQLExecuter, fb usecase.Firebase) (h
 /**
 	Interactor
 **/
+
+//Admin
+//
+func InitializeAdminInteractor(db interfaces.SQLExecuter, appConfig config.App) (i interactor.AdminInteractor) {
+	wire.Build(wireSet)
+	return
+}
 
 // User
 //

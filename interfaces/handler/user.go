@@ -14,6 +14,9 @@ type UserHandler interface {
 	GetByFirebaseToken(token string) (presenter.Presenter, error)
 	GetByLineUserId(lineUserId string) (presenter.Presenter, error)
 
+	// admin
+	GetAll() (presenter.Presenter, error)
+
 	// Line API
 	GetLineWebHook(param *entity.LineWebHook) (presenter.Presenter, error)
 }
@@ -71,6 +74,16 @@ func (h *UserHandlerImpl) GetByLineUserId(lineUserId string) (presenter.Presente
 	}
 
 	return presenter.NewUserJSONPresenter(responses.NewUser(user)), nil
+}
+
+func (h *UserHandlerImpl) GetAll() (presenter.Presenter, error) {
+	userList, err := h.UserInteractor.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return presenter.NewUserListJSONPresenter(responses.NewUserList(userList)), nil
 }
 
 func (h *UserHandlerImpl) GetLineWebHook(param *entity.LineWebHook) (presenter.Presenter, error) {

@@ -14,10 +14,11 @@ type UserInteractor interface {
 	GetByFirebaseToken(token string) (user *entity.User, err error)
 	GetByLineUserId(lineUserId string) (user *entity.User, err error)
 
+	// admin
+	GetAll() (users []*entity.User, err error)
+
 	// line
 	GetLineWebHook(param *entity.LineWebHook) (ok bool, err error)
-
-	// resume
 }
 
 type UserInteractorImpl struct {
@@ -106,6 +107,16 @@ func (i *UserInteractorImpl) GetByFirebaseToken(token string) (user *entity.User
 	fmt.Println("exported user is:", user)
 
 	return user, nil
+}
+
+func (i *UserInteractorImpl) GetAll() (users []*entity.User, err error) {
+
+	users, err = i.userRepository.GetAll()
+	if err != nil {
+		return users, err
+	}
+
+	return users, nil
 }
 
 func (i *UserInteractorImpl) GetByLineUserId(lineUserId string) (user *entity.User, err error) {

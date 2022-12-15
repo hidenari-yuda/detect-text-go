@@ -8,6 +8,7 @@ package di
 
 import (
 	"github.com/google/wire"
+	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/interfaces"
 	"github.com/hidenari-yuda/paychan-server/interfaces/handler"
 	"github.com/hidenari-yuda/paychan-server/interfaces/repository"
@@ -16,6 +17,14 @@ import (
 )
 
 // Injectors from wire.go:
+
+//Admin
+//
+func InitializeAdminHandler(db interfaces.SQLExecuter, appConfig config.App) handler.AdminHandler {
+	adminInteractor := interactor.NewAdminInteractorImpl(appConfig)
+	adminHandler := handler.NewAdminHandlerImpl(adminInteractor)
+	return adminHandler
+}
 
 // User
 //
@@ -47,6 +56,13 @@ func InitializePresentHandler(db interfaces.SQLExecuter, fb usecase.Firebase) ha
 	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, aspRepository)
 	presentHandler := handler.NewPresentHandlerImpl(presentInteractor)
 	return presentHandler
+}
+
+//Admin
+//
+func InitializeAdminInteractor(db interfaces.SQLExecuter, appConfig config.App) interactor.AdminInteractor {
+	adminInteractor := interactor.NewAdminInteractorImpl(appConfig)
+	return adminInteractor
 }
 
 // User

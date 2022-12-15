@@ -1,4 +1,4 @@
-package infrastructure
+package router
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hidenari-yuda/paychan-server/domain/config"
+	"github.com/hidenari-yuda/paychan-server/domain/utility"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/driver"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/router/routes"
@@ -27,9 +28,9 @@ func NewRouter(cfg config.Config) *Router {
 
 func (r *Router) SetUp() *Router {
 	var (
-		db       = database.NewDB(r.cfg.DB, true)
-		firebase = driver.NewFirebaseImpl(r.cfg.Firebase)
-	// basicAuth = utility.NewBasicAuth(r.cfg)
+		db        = database.NewDB(r.cfg.DB, true)
+		firebase  = driver.NewFirebaseImpl(r.cfg.Firebase)
+		basicAuth = utility.NewBasicAuth(r.cfg)
 	)
 
 	// r.Engine.HidePort = true
@@ -79,11 +80,6 @@ func (r *Router) SetUp() *Router {
 	// 	origins = []string{
 	// 	}
 	// }
-
-	fmt.Println("------------")
-	fmt.Println(r.cfg.App.Env)
-	fmt.Println(origins)
-	fmt.Println("------------")
 
 	r.Engine.Use(middleware.CORSWithConfig((middleware.CORSConfig{
 		AllowOrigins: origins,
@@ -144,80 +140,125 @@ func (r *Router) SetUp() *Router {
 		})
 
 		// ユーザーの新規登録
-		noAuthAPI.POST("/signup", userRoutes.SignUp(db, firebase))
+		// noAuthAPI.POST("/signup", userRoutes.SignUp(db, firebase))
 
 		// ユーザーのログイン
-		noAuthAPI.PUT("/signin", userRoutes.SignIn(db, firebase))
+		// noAuthAPI.PUT("/signin", userRoutes.SignIn(db, firebase))
 
 		noAuthAPI.POST("/line", userRoutes.GetLineWebHook(db, firebase))
 
-		noAuthAPI.POST("/present", presentRoutes.Create(db, firebase))
+		// noAuthAPI.POST("/present", presentRoutes.Create(db, firebase))
 
-		noAuthAPI.DELETE("/expired", presentRoutes.DeleteByExpired(db, firebase))
+		// noAuthAPI.DELETE("/expired", presentRoutes.DeleteByExpired(db, firebase))
 
 	}
 
 	/****************************************************************************************/
 	/// UserAPI
 	//
-	userAPI := noAuthAPI.Group("/user")
+	// userAPI := noAuthAPI.Group("/user")
 	{
+
+		// firebaseTokenからユーザーを取得
+		// userAPI.GET("/firebaseToken", userRoutes.GetByFirebaseToken(db, firebase))
+
 		// ユーザーのログイン
-		userAPI.GET("/line_user_id", userRoutes.SignIn(db, firebase))
+		// userAPI.GET("/lineUserId", userRoutes.GetByLineUserId(db, firebase))
 
 	}
 
 	/****************************************************************************************/
 	/// PresentAPI
 	//
-	presentAPI := noAuthAPI.Group("/present")
-	{
+	// presentAPI := noAuthAPI.Group("/present")
+	// {
 
-		// create
-		presentAPI.POST("", presentRoutes.Create(db, firebase))
+	// // create
+	// presentAPI.POST("", presentRoutes.Create(db, firebase))
 
-		// update
-		presentAPI.PUT("", presentRoutes.Update(db, firebase))
+	// // update
+	// presentAPI.PUT("", presentRoutes.Update(db, firebase))
 
-		// getbyId
-		presentAPI.GET("/:id", presentRoutes.GetById(db, firebase))
+	// // getbyId
+	// presentAPI.GET("/:id", presentRoutes.GetById(db, firebase))
 
-		// getbyLineUserId
-		presentAPI.GET("/line_user_id/:line_user_id", presentRoutes.GetByLineUserId(db, firebase))
+	// // getbyLineUserId
+	// presentAPI.GET("/lineUserId/:lineUserId", presentRoutes.GetByLineUserId(db, firebase))
 
-		// ユーザーのログイン
-		presentAPI.GET("/all", presentRoutes.GetAll(db, firebase))
-
-	}
-
-	/****************************************************************************************/
-	/// RichMenuAPI
-	//
-	richMenuAPI := noAuthAPI.Group("/rich_menu")
-	{
-
-		// create
-		richMenuAPI.POST("", richMenuRoutes.Create(db, firebase))
-
-		// createAlias
-		richMenuAPI.POST("/alias", richMenuRoutes.CreateAlias(db, firebase))
-
-		// getAll
-		richMenuAPI.GET("/all", richMenuRoutes.GetAll(db, firebase))
-
-	}
+	// }
 
 	/****************************************************************************************/
 	/// AdminAPI
 	//
-	// adminAPI := api.Group("admin")
-	// {
-	// 	adminAPI.GET("/healthz", func(c echo.Context) error {
-	// 		return c.NoContent(http.StatusOK)
-	// 	})
+	adminAPI := r.Engine.Group("/admin")
+	adminNoAuthAPI := adminAPI.Group("")
+	{
+		adminNoAuthAPI.PUT("/authorize", routes.AdminAuthorize(db, r.cfg.App))
+	}
 
-	// 	adminAPI.GET("/users", userRoutes.GetAll(db, firebase))
-	// }
+	// Admin basic auth
+	adminBasicAuthAPI := adminAPI.Group("/basic")
+	adminBasicAuthAPI.Use(middleware.BasicAuth(basicAuth.BasicAuthValidator))
+	{
+		adminBasicAuthAPI.GET("/healthz", func(c echo.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	}
+	/****************************************************************************************/
+	/// UserAPI
+	//
+	adminForUserAPI := adminAPI.Group("/user")
+	adminForUserAPI.Use(middleware.BasicAuth(basicAuth.BasicAuthValidator))
+	{
+		// getbyLineUserId
+		adminForUserAPI.GET("/lineUserId/:lineUserId", userRoutes.GetByLineUserId(db, firebase))
+
+		adminForUserAPI.GET("/user/all", userRoutes.GetAll(db, firebase))
+	}
+	/****************************************************************************************/
+	/// PresentAPI
+	//
+
+	adminForPresentAPI := adminAPI.Group("/present")
+	adminForPresentAPI.Use(middleware.BasicAuth(basicAuth.BasicAuthValidator))
+
+	{
+		// create
+		adminForPresentAPI.POST("", presentRoutes.Create(db, firebase))
+
+		// update
+		adminForPresentAPI.PUT("", presentRoutes.Update(db, firebase))
+
+		// getbyId
+		adminForPresentAPI.GET("/:id", presentRoutes.GetById(db, firebase))
+
+		// getbyLineUserId
+		adminForPresentAPI.GET("/lineUserId/:lineUserId", presentRoutes.GetByLineUserId(db, firebase))
+
+		// getall
+		adminForPresentAPI.GET("/all", presentRoutes.GetAll(db, firebase))
+
+		//delete
+		adminForPresentAPI.DELETE("/expired", presentRoutes.DeleteByExpired(db, firebase))
+	}
+	/****************************************************************************************/
+	/// RichMenuAPI
+	//
+	adminForRichMenuAPI := adminAPI.Group("/richMenu")
+	adminForRichMenuAPI.Use(middleware.BasicAuth(basicAuth.BasicAuthValidator))
+	{
+		// create
+		adminForRichMenuAPI.POST("", richMenuRoutes.Create(db, firebase))
+
+		// createAlias
+		adminForRichMenuAPI.POST("/alias", richMenuRoutes.CreateAlias(db, firebase))
+
+		// getAll
+		adminForRichMenuAPI.GET("/all", richMenuRoutes.GetAll(db, firebase))
+	}
+
+	/****************************************************************************************/
 
 	return r
 }
