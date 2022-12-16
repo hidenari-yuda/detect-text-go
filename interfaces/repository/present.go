@@ -16,8 +16,8 @@ type PresentRepositoryImpl struct {
 }
 
 // Create(param *entity.Present) error
-// GetById(id uint) (*entity.Present, error)
-// GetListByUserId(userId uint) ([]*entity.Present, error)
+// GetById(id int) (*entity.Present, error)
+// GetListByUserId(userId int) ([]*entity.Present, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.Present, error)
 
 func NewPresentRepositoryImpl(ex interfaces.SQLExecuter) usecase.PresentRepository {
@@ -30,7 +30,7 @@ func NewPresentRepositoryImpl(ex interfaces.SQLExecuter) usecase.PresentReposito
 func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 	_, err := r.executer.Exec(
 		r.Name+"Create",
-		`INSERT INTO Presents (
+		`INSERT INTO presents (
 			uuid,
 			user_id,
 			line_user_id,
@@ -46,6 +46,8 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 				?,
 				?,
 				?, 
+				?,
+				?,
 				?,
 				?,
 				?,
@@ -77,7 +79,7 @@ func (r *PresentRepositoryImpl) Create(param *entity.Present) error {
 func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 	_, err := r.executer.Exec(
 		r.Name+"Update",
-		`UPDATE Presents
+		`UPDATE presents
 		SET
 			user_id = ?,
 			line_user_id = ?,
@@ -109,7 +111,7 @@ func (r *PresentRepositoryImpl) Update(present *entity.Present) error {
 	return nil
 }
 
-func (r *PresentRepositoryImpl) GetById(id uint) (*entity.Present, error) {
+func (r *PresentRepositoryImpl) GetById(id int) (*entity.Present, error) {
 	var (
 		present entity.Present
 	)
@@ -163,7 +165,7 @@ func (r *PresentRepositoryImpl) GetByPointAndService(present *entity.Present) ([
 	return presentList, nil
 }
 
-func (r *PresentRepositoryImpl) GetListByReceiptPictureId(receiptPictureId uint) ([]*entity.Present, error) {
+func (r *PresentRepositoryImpl) GetListByReceiptPictureId(receiptPictureId int) ([]*entity.Present, error) {
 	var (
 		presentList []*entity.Present
 	)
@@ -171,7 +173,7 @@ func (r *PresentRepositoryImpl) GetListByReceiptPictureId(receiptPictureId uint)
 		r.Name+"GetByReceiptPictureId",
 		&presentList, `
 		SELECT * 
-		FROM Presents 
+		FROM presents 
 		WHERE receipt_picture_id = ?`,
 		receiptPictureId,
 	)
@@ -193,7 +195,7 @@ func (r *PresentRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entit
 		r.Name+"GetByLinePresentId",
 		&presentList, `
 		SELECT * 
-		FROM Presents 
+		FROM presents 
 		WHERE user_id = (
 			SELECT id
 			FROM users
@@ -220,7 +222,7 @@ func (r *PresentRepositoryImpl) GetAll() ([]*entity.Present, error) {
 		r.Name+"GetAll",
 		&presentList, `
 		SELECT * 
-		FROM Presents`,
+		FROM presents`,
 	)
 
 	if err != nil {
@@ -236,7 +238,7 @@ func (r *PresentRepositoryImpl) GetAll() ([]*entity.Present, error) {
 func (r *PresentRepositoryImpl) DeleteByExpired() error {
 	_, err := r.executer.Exec(
 		r.Name+"DeleteByExpired",
-		`DELETE FROM Presents
+		`DELETE FROM presents
 		WHERE expirary < ?`,
 		time.Now(),
 	)

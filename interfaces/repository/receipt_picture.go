@@ -16,8 +16,8 @@ type ReceiptPictureRepositoryImpl struct {
 }
 
 // Create(param *entity.ReceiptPicture) error
-// GetById(id uint) (*entity.ReceiptPicture, error)
-// GetListByUserId(userId uint) ([]*entity.ReceiptPicture, error)
+// GetById(id int) (*entity.ReceiptPicture, error)
+// GetListByUserId(userId int) ([]*entity.ReceiptPicture, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.ReceiptPicture, error)
 
 func NewReceiptPictureRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptPictureRepository {
@@ -30,7 +30,7 @@ func NewReceiptPictureRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptP
 func (r *ReceiptPictureRepositoryImpl) Create(param *entity.ReceiptPicture) error {
 	_, err := r.executer.Exec(
 		"SignUp",
-		`INSERT INTO ReceiptPictures (
+		`INSERT INTO receipt_pictures (
 			uuid,
 			user_id,
 			line_user_id,
@@ -79,7 +79,7 @@ func (r *ReceiptPictureRepositoryImpl) Create(param *entity.ReceiptPicture) erro
 func (r *ReceiptPictureRepositoryImpl) Update(param *entity.ReceiptPicture) error {
 	_, err := r.executer.Exec(
 		"Update",
-		`UPDATE ReceiptPictures SET
+		`UPDATE receipt_pictures SET
 			url = ?,
 			detected_text = ?,
 			service = ?,
@@ -105,14 +105,14 @@ func (r *ReceiptPictureRepositoryImpl) Update(param *entity.ReceiptPicture) erro
 	return nil
 }
 
-func (r *ReceiptPictureRepositoryImpl) GetById(id uint) (*entity.ReceiptPicture, error) {
+func (r *ReceiptPictureRepositoryImpl) GetById(id int) (*entity.ReceiptPicture, error) {
 	var (
 		ReceiptPicture entity.ReceiptPicture
 	)
 	err := r.executer.Get(
 		"GetByFirebaseId",
 		&ReceiptPicture,
-		"SELECT * FROM ReceiptPictures WHERE id = ?",
+		"SELECT * FROM receipt_pictures WHERE id = ?",
 		id,
 	)
 
@@ -133,7 +133,7 @@ func (r *ReceiptPictureRepositoryImpl) GetListByLineUserId(lineUserId string) ([
 		"GetByLineReceiptPictureId",
 		&ReceiptPictureList, `
 		SELECT * 
-		FROM receiptPictures 
+		FROM receipt_pictures
 		WHERE user_id = (
 			SELECT id
 			FROM users
@@ -160,7 +160,7 @@ func (r *ReceiptPictureRepositoryImpl) GetListByToday(lineUserId string) ([]*ent
 		"GetByLineReceiptPictureId",
 		&ReceiptPictureList, `
 		SELECT * 
-		FROM receiptPictures 
+		FROM receipt_pictures
 		WHERE user_id = (
 			SELECT id
 			FROM users

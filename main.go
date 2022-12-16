@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/hidenari-yuda/paychan-server/infrastructure/batch"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/router"
+	"github.com/joho/godotenv"
 
 	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/labstack/echo/v4"
@@ -20,11 +22,11 @@ import (
 func init() {
 	time.Local = utility.Tokyo
 
-	// if os.Getenv("APP_ENV") == "local" {
-	// 	if err := godotenv.Load(); err != nil {
-	// 		panic("Failed to load .env file")
-	// 	}
-	// }
+	if os.Getenv("APP_ENV") == "local" {
+		if err := godotenv.Load(); err != nil {
+			panic("Failed to load .env file")
+		}
+	}
 }
 
 func main() {

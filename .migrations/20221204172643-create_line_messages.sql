@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS payment_methods (
   sticker_id VARCHAR(255) NOT NULL, -- スタンプの表示に使用するID
   original_content_url VARCHAR(255) NOT NULL, -- 画像ファイル or 動画ファイル or 音声ファイルのUrl
   preview_image_url VARCHAR(255) NOT NULL, -- 画像ファイル or 動画ファイルのプレビュー表示用のファイルUrl
-  duration INT, -- 音声ファイルに使用する値
+  duration INT NOT NULL DEFAULT 0, -- 音声ファイルに使用する値
   PRIMARY KEY (id),
   INDEX (user_id)
 );

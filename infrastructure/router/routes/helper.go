@@ -35,8 +35,8 @@ func renderFile(c echo.Context, filePath string) error {
 	return nil
 }
 
-// stringToUint
-func stringToUint(s string) (uint, error) {
+// stringToint
+func stringToint(s string) (int, error) {
 	i, err := strconv.Atoi(s)
 	if err != nil {
 		return 0, err
@@ -46,5 +46,5 @@ func stringToUint(s string) (uint, error) {
 		return 0, fmt.Errorf("invalid value: %d", i)
 	}
 
-	return uint(i), nil
+	return int(i), nil
 }

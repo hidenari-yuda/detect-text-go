@@ -16,8 +16,8 @@ type ReceiptRepositoryImpl struct {
 }
 
 // Create(param *entity.Receipt) error
-// GetById(id uint) (*entity.Receipt, error)
-// GetListByUserId(userId uint) ([]*entity.Receipt, error)
+// GetById(id int) (*entity.Receipt, error)
+// GetListByUserId(userId int) ([]*entity.Receipt, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.Receipt, error)
 
 func NewReceiptRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptRepository {
@@ -30,7 +30,7 @@ func NewReceiptRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptReposito
 func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 	_, err := r.executer.Exec(
 		"SignUp",
-		`INSERT INTO Receipts (
+		`INSERT INTO receipts (
 			uuid,
 			receipt_picture_id,
 			store_name,
@@ -67,7 +67,7 @@ func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 func (r *ReceiptRepositoryImpl) Update(param *entity.Receipt) error {
 	_, err := r.executer.Exec(
 		"Update",
-		`UPDATE Receipts SET
+		`UPDATE receipts SET
 			store_name = ?,
 			total_price = ?,
 			purchased_at = ?,
@@ -87,14 +87,14 @@ func (r *ReceiptRepositoryImpl) Update(param *entity.Receipt) error {
 	return nil
 }
 
-func (r *ReceiptRepositoryImpl) GetById(id uint) (*entity.Receipt, error) {
+func (r *ReceiptRepositoryImpl) GetById(id int) (*entity.Receipt, error) {
 	var (
 		Receipt entity.Receipt
 	)
 	err := r.executer.Get(
 		"GetByFirebaseId",
 		&Receipt,
-		"SELECT * FROM Receipts WHERE id = ?",
+		"SELECT * FROM receipts WHERE id = ?",
 		id,
 	)
 

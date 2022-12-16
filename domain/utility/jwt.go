@@ -7,11 +7,11 @@ import (
 )
 
 type JwtCustomClaims struct {
-	UserID uint `json:"UserID"`
+	UserID int `json:"UserID"`
 	jwt.StandardClaims
 }
 
-func NewJWT(userID uint, secret string) (string, error) {
+func NewJWT(userID int, secret string) (string, error) {
 	claims := &JwtCustomClaims{
 		userID,
 		jwt.StandardClaims{

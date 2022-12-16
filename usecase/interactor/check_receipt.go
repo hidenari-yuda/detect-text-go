@@ -130,7 +130,7 @@ func checkReceipt(
 		// receipt.ParchasedItems = append(receipt.ParchasedItems, parchasedItem)
 	}
 
-	var point uint
+	var point int
 	// len := annotations[0].BoundingPoly.Vertices[2].X - annotations[0].BoundingPoly.Vertices[0].X
 	len := len(annotations[0].Description)
 	if len < 50 {

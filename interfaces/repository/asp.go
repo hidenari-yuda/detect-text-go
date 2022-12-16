@@ -16,8 +16,8 @@ type AspRepositoryImpl struct {
 }
 
 // Create(param *entity.Asp) error
-// GetById(id uint) (*entity.Asp, error)
-// GetListByUserId(userId uint) ([]*entity.Asp, error)
+// GetById(id int) (*entity.Asp, error)
+// GetListByUserId(userId int) ([]*entity.Asp, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.Asp, error)
 
 func NewAspRepositoryImpl(ex interfaces.SQLExecuter) usecase.AspRepository {
@@ -30,7 +30,7 @@ func NewAspRepositoryImpl(ex interfaces.SQLExecuter) usecase.AspRepository {
 func (r *AspRepositoryImpl) Create(param *entity.Asp) error {
 	_, err := r.executer.Exec(
 		"SignUp",
-		`INSERT INTO Asps (
+		`INSERT INTO asps (
 			uuid,
 			user_id,
 			service,
@@ -63,14 +63,14 @@ func (r *AspRepositoryImpl) Create(param *entity.Asp) error {
 	return nil
 }
 
-func (r *AspRepositoryImpl) GetById(id uint) (*entity.Asp, error) {
+func (r *AspRepositoryImpl) GetById(id int) (*entity.Asp, error) {
 	var (
 		Asp entity.Asp
 	)
 	err := r.executer.Get(
 		"GetByFirebaseId",
 		&Asp,
-		"SELECT * FROM Asps WHERE id = ?",
+		"SELECT * FROM asps WHERE id = ?",
 		id,
 	)
 
@@ -91,7 +91,7 @@ func (r *AspRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entity.As
 		"GetByLineAspId",
 		&AspList, `
 		SELECT * 
-		FROM Asps 
+		FROM asps 
 		WHERE user_id = (
 			SELECT id
 			FROM users

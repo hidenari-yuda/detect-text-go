@@ -34,28 +34,28 @@ func NewDB(dbConfig config.DB, printsQuery bool) *DB {
 		url           string
 	)
 
-	// 本番環境の場合は、Cloud SQL Proxyを使用する
 	cfg, err := config.New()
 	log.Println("開発環境は:", cfg.App.Env)
 
-	// if cfg.App.Env == "production" {
-	url = fmt.Sprintf("%s:%s@unix(/%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_general_ci",
-		dbConfig.User,
-		dbConfig.Pass,
-		dbConfig.InstanceUnixSocket,
-		dbConfig.Name,
-	)
+	// 本番環境の場合は、CloudSQLにUnix接続する
+	if cfg.App.Env == "production" {
+		url = fmt.Sprintf("%s:%s@unix(/%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_general_ci",
+			dbConfig.User,
+			dbConfig.Pass,
+			dbConfig.InstanceUnixSocket,
+			dbConfig.Name,
+		)
 
-	// ローカル環境の場合は、Cloud SQL Proxyを使用しない
-	// } else {
-	// 	url = fmt.Sprintf("%s:%s@tcp([%s]:%d)/%s?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true",
-	// 		dbConfig.User,
-	// 		dbConfig.Pass,
-	// 		dbConfig.Host,
-	// 		dbConfig.Port,
-	// 		dbConfig.Name,
-	// 	)
-	// }
+		// ローカル環境の場合は、DockerのMySQLへTCP接続する
+	} else {
+		url = fmt.Sprintf("%s:%s@tcp([%s]:%d)/%s?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true",
+			dbConfig.User,
+			dbConfig.Pass,
+			dbConfig.Host,
+			dbConfig.Port,
+			dbConfig.Name,
+		)
+	}
 
 	// mustGetenv := func(k string) string {
 	// 	v := os.Getenv(k)

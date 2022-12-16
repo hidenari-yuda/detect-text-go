@@ -12,7 +12,7 @@ type PresentHandler interface {
 	// Gest API
 	Create(param *entity.Present) (presenter.Presenter, error)
 	Update(param *entity.Present) (presenter.Presenter, error)
-	GetById(id uint) (presenter.Presenter, error)
+	GetById(id int) (presenter.Presenter, error)
 	GetByLineUserId(lineUserId string) (presenter.Presenter, error)
 	GetAll() (presenter.Presenter, error)
 	DeleteByExpired() (presenter.Presenter, error)
@@ -47,7 +47,7 @@ func (h *PresentHandlerImpl) Update(param *entity.Present) (presenter.Presenter,
 	return presenter.NewPresentJSONPresenter(responses.NewPresent(present)), nil
 }
 
-func (h *PresentHandlerImpl) GetById(id uint) (presenter.Presenter, error) {
+func (h *PresentHandlerImpl) GetById(id int) (presenter.Presenter, error) {
 	present, err := h.PresentInteractor.GetById(id)
 
 	if err != nil {

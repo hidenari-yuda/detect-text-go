@@ -16,8 +16,8 @@ type ParchasedItemRepositoryImpl struct {
 }
 
 // Create(param *entity.ParchasedItem) error
-// GetById(id uint) (*entity.ParchasedItem, error)
-// GetListByUserId(userId uint) ([]*entity.ParchasedItem, error)
+// GetById(id int) (*entity.ParchasedItem, error)
+// GetListByUserId(userId int) ([]*entity.ParchasedItem, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.ParchasedItem, error)
 
 func NewParchasedItemRepositoryImpl(ex interfaces.SQLExecuter) usecase.ParchasedItemRepository {
@@ -88,7 +88,7 @@ func (r *ParchasedItemRepositoryImpl) Update(param *entity.ParchasedItem) error 
 	return nil
 }
 
-func (r *ParchasedItemRepositoryImpl) GetById(id uint) (*entity.ParchasedItem, error) {
+func (r *ParchasedItemRepositoryImpl) GetById(id int) (*entity.ParchasedItem, error) {
 	var (
 		ParchasedItem entity.ParchasedItem
 	)
@@ -107,7 +107,7 @@ func (r *ParchasedItemRepositoryImpl) GetById(id uint) (*entity.ParchasedItem, e
 	return &ParchasedItem, nil
 }
 
-func (r *ParchasedItemRepositoryImpl) GetListByReceiptId(receiptId uint) ([]*entity.ParchasedItem, error) {
+func (r *ParchasedItemRepositoryImpl) GetListByReceiptId(receiptId int) ([]*entity.ParchasedItem, error) {
 	var (
 		ParchasedItemList []*entity.ParchasedItem
 	)

@@ -16,8 +16,8 @@ type LineMessageRepositoryImpl struct {
 }
 
 // Create(param *entity.LineMessage) error
-// GetById(id uint) (*entity.LineMessage, error)
-// GetListByUserId(userId uint) ([]*entity.LineMessage, error)
+// GetById(id int) (*entity.LineMessage, error)
+// GetListByUserId(userId int) ([]*entity.LineMessage, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.LineMessage, error)
 
 func NewLineMessageRepositoryImpl(ex interfaces.SQLExecuter) usecase.LineMessageRepository {
@@ -30,7 +30,7 @@ func NewLineMessageRepositoryImpl(ex interfaces.SQLExecuter) usecase.LineMessage
 func (r *LineMessageRepositoryImpl) Create(param *entity.LineMessage) error {
 	_, err := r.executer.Exec(
 		"SignUp",
-		`INSERT INTO payment_methods (
+		`INSERT INTO line_messages (
 			user_id,
 			line_user_id,
 			message_id,
@@ -79,14 +79,14 @@ func (r *LineMessageRepositoryImpl) Create(param *entity.LineMessage) error {
 	return nil
 }
 
-func (r *LineMessageRepositoryImpl) GetById(id uint) (*entity.LineMessage, error) {
+func (r *LineMessageRepositoryImpl) GetById(id int) (*entity.LineMessage, error) {
 	var (
 		LineMessage entity.LineMessage
 	)
 	err := r.executer.Get(
 		"GetByFirebaseId",
 		&LineMessage,
-		"SELECT * FROM payment_methods WHERE id = ?",
+		"SELECT * FROM line_messages WHERE id = ?",
 		id,
 	)
 
@@ -107,7 +107,7 @@ func (r *LineMessageRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*e
 		"GetByLineLineMessageId",
 		&LineMessageList, `
 		SELECT * 
-		FROM payment_methods 
+		FROM line_messages 
 		WHERE user_id = (
 			SELECT id
 			FROM users

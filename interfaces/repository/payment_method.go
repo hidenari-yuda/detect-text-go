@@ -16,8 +16,8 @@ type PaymentMethodRepositoryImpl struct {
 }
 
 // Create(param *entity.PaymentMethod) error
-// GetById(id uint) (*entity.PaymentMethod, error)
-// GetListByUserId(userId uint) ([]*entity.PaymentMethod, error)
+// GetById(id int) (*entity.PaymentMethod, error)
+// GetListByUserId(userId int) ([]*entity.PaymentMethod, error)
 // GetListByLineUserId(lineUserId string) ([]*entity.PaymentMethod, error)
 
 func NewPaymentMethodRepositoryImpl(ex interfaces.SQLExecuter) usecase.PaymentMethodRepository {
@@ -77,7 +77,7 @@ func (r *PaymentMethodRepositoryImpl) Update(param *entity.PaymentMethod) error 
 	return nil
 }
 
-func (r *PaymentMethodRepositoryImpl) GetById(id uint) (*entity.PaymentMethod, error) {
+func (r *PaymentMethodRepositoryImpl) GetById(id int) (*entity.PaymentMethod, error) {
 	var (
 		PaymentMethod entity.PaymentMethod
 	)

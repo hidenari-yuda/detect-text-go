@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	Id            uint      `db:"id" json:"id"`
+	Id            int       `db:"id" json:"id"`
 	Uuid          string    `db:"uuid" json:"uuid"`
 	FirebaseId    string    `db:"firebase_id" json:"firebase_id"`
 	LineUserId    string    `db:"line_user_id" json:"line_user_id"`
@@ -13,7 +13,7 @@ type User struct {
 	PictureUrl    string    `db:"picture_url" json:"picture_url"`
 	StatusMessage string    `db:"status_message" json:"status_message"`
 	Language      string    `db:"language" json:"language"`
-	Point         uint      `db:"point" json:"point"`
+	Point         int       `db:"point" json:"point"`
 	Name          string    `db:"name" json:"name"`
 	Email         string    `db:"email" json:"email"`
 	Password      string    `db:"password" json:"password"`
@@ -28,7 +28,7 @@ type User struct {
 
 	// dbにはないが、返却用に追加
 	TotalPrice    int    `db:"-" json:"total_price"`
-	TotalResheets uint   `db:"-" json:"total_resheets"`
+	TotalResheets int    `db:"-" json:"total_resheets"`
 	LineOneWord   string `db:"-" json:"line_one_word"`
 	Active        bool   `db:"-" json:"active"`
 }
@@ -38,15 +38,15 @@ func NewUser() *User {
 }
 
 type SignUpParam struct {
-	FirebaseId    string `json:"firebase_id" validate:"required"`
-	Name          string `json:"name" validate:"required"`
+	FirebaseId    string `db:"firebase_id" json:"firebase_id"`
+	Name          string `db:"name" json:"name"`
 	Email         string `db:"email" json:"email"`
 	Password      string `db:"password" json:"password"`
 	LineUserId    string `db:"line_user_id" json:"line_user_id"`
-	LineName      string `db:"-" json:"line_name"`
-	PictureUrl    string `json:"picture_url"`
-	StatusMessage string `json:"status_message"`
-	Language      string `json:"language"`
+	LineName      string `db:"line_name" json:"line_name"`
+	PictureUrl    string `db:"picture_url" json:"picture_url"`
+	StatusMessage string `db:"status_message" json:"status_message"`
+	Language      string `db:"language" json:"language"`
 }
 
 type SignInParam struct {

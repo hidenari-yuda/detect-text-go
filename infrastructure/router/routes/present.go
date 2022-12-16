@@ -14,7 +14,7 @@ type PresentRoutes struct{}
 
 // Create(param *entity.Present) (presenter.Presenter, error)
 // Update(param *entity.Present) (presenter.Presenter, error)
-// GetById(id uint) (presenter.Presenter, error)
+// GetById(id int) (presenter.Presenter, error)
 // GetByLineUserId(lineUserId string) (presenter.Presenter, error)
 // GetAll() (presenter.Presenter, error)
 // DeleteByExpired() (presenter.Presenter, error)
@@ -80,7 +80,7 @@ func (r *PresentRoutes) GetById(db *database.DB, firebase usecase.Firebase) func
 			idStr = c.Param("id")
 		)
 
-		id, err := stringToUint(idStr)
+		id, err := stringToint(idStr)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}

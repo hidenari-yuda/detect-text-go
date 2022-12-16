@@ -63,9 +63,9 @@ func (r *Router) SetUp() *Router {
 		"http://localhost:9090",
 		"http://localhost:3000",
 		"http://localhost:8080",
-		"https://paychan-server.com",
-		"https://app.paychan-server.com",
-		"https://api.paychan-server.com",
+		"https://paychan.jp",
+		"https://app.paychan.jp",
+		"https://api.paychan.jp",
 	}
 
 	// if r.cfg.App.Env == "local" {
@@ -140,9 +140,9 @@ func (r *Router) SetUp() *Router {
 		})
 
 		// ユーザーの新規登録
-		// noAuthAPI.POST("/signup", userRoutes.SignUp(db, firebase))
+		noAuthAPI.POST("/signup", userRoutes.SignUp(db, firebase))
 
-		// ユーザーのログイン
+		// // ユーザーのログイン
 		// noAuthAPI.PUT("/signin", userRoutes.SignIn(db, firebase))
 
 		noAuthAPI.POST("/line", userRoutes.GetLineWebHook(db, firebase))
@@ -214,7 +214,7 @@ func (r *Router) SetUp() *Router {
 		// getbyLineUserId
 		adminForUserAPI.GET("/lineUserId/:lineUserId", userRoutes.GetByLineUserId(db, firebase))
 
-		adminForUserAPI.GET("/user/all", userRoutes.GetAll(db, firebase))
+		adminForUserAPI.GET("/all", userRoutes.GetAll(db, firebase))
 	}
 	/****************************************************************************************/
 	/// PresentAPI

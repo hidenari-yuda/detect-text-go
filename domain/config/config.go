@@ -28,6 +28,7 @@ type App struct {
 	Port           int      `required:"true" split_words:"true"`
 	BasicUsers     []string `required:"true" split_words:"true"`
 	BasicPasswords []string `required:"true" split_words:"true"`
+	BasicSecret    string   `required:"true" split_words:"true"`
 	CorsDomains    []string `required:"true" split_words:"true"`
 }
 

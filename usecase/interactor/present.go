@@ -9,7 +9,7 @@ type PresentInteractor interface {
 	// Gest API
 	Create(param *entity.Present) (present *entity.Present, err error)
 	Update(param *entity.Present) (present *entity.Present, err error)
-	GetById(id uint) (present *entity.Present, err error)
+	GetById(id int) (present *entity.Present, err error)
 	GetByLineUserId(LineUserId string) (presentList []*entity.Present, err error)
 	GetAll() (presentList []*entity.Present, err error)
 	DeleteByExpired() (ok bool, err error)
@@ -77,7 +77,7 @@ func (i *PresentInteractorImpl) Update(param *entity.Present) (present *entity.P
 	return param, nil
 }
 
-func (i *PresentInteractorImpl) GetById(id uint) (present *entity.Present, err error) {
+func (i *PresentInteractorImpl) GetById(id int) (present *entity.Present, err error) {
 	// ユーザー登録
 	present, err = i.presentRepository.GetById(id)
 	if err != nil {
