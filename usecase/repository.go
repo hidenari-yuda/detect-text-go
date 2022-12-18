@@ -74,10 +74,29 @@ type PresentRepository interface {
 	DeleteByExpired() error
 }
 
-type AspRepository interface {
+type AdRepository interface {
 	// Gest API
-	Create(param *entity.Asp) error
-	GetById(id int) (*entity.Asp, error)
+	Create(param *entity.Ad) error
+	Update(param *entity.Ad) error
+	UpdateImpression(param *entity.Ad) error
+	UpdateClick(param *entity.Ad) error
+	GetById(id int) (*entity.Ad, error)
 	// GetListByUserId(userId int) ([]*entity.Asp, error)
-	GetListByLineUserId(lineUserId string) ([]*entity.Asp, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.Ad, error)
+}
+
+type QuestionRepository interface {
+	// Gest API
+	Create(param *entity.Question) error
+	GetById(id int) (*entity.Question, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.Question, error)
+	GetListByQuestionType(questionType int) ([]*entity.Question, error)
+}
+
+type QuestionSelectionRepository interface {
+	// Gest API
+	Create(param *entity.QuestionSelection) error
+	GetListByQuestionId(questionId int) ([]*entity.QuestionSelection, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.QuestionSelection, error)
+	GetListByQuestionType(questionType int) ([]*entity.QuestionSelection, error)
 }

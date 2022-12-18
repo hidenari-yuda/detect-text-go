@@ -29,7 +29,7 @@ func NewPaymentMethodRepositoryImpl(ex interfaces.SQLExecuter) usecase.PaymentMe
 
 func (r *PaymentMethodRepositoryImpl) Create(param *entity.PaymentMethod) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO payment_methods (
 			uuid,
 			user_id,
@@ -60,7 +60,7 @@ func (r *PaymentMethodRepositoryImpl) Create(param *entity.PaymentMethod) error 
 // update
 func (r *PaymentMethodRepositoryImpl) Update(param *entity.PaymentMethod) error {
 	_, err := r.executer.Exec(
-		"Update",
+		r.Name+"Update",
 		`UPDATE payment_methods SET
 			payment_service = ?,
 			updated_at = ?
@@ -82,7 +82,7 @@ func (r *PaymentMethodRepositoryImpl) GetById(id int) (*entity.PaymentMethod, er
 		PaymentMethod entity.PaymentMethod
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&PaymentMethod,
 		"SELECT * FROM payment_methods WHERE id = ?",
 		id,
@@ -102,7 +102,7 @@ func (r *PaymentMethodRepositoryImpl) GetListByLineUserId(lineUserId string) ([]
 		PaymentMethodList []*entity.PaymentMethod
 	)
 	err := r.executer.Select(
-		"GetByLinePaymentMethodId",
+		r.Name+"GetListByLineUserId",
 		&PaymentMethodList, `
 		SELECT * 
 		FROM payment_methods 

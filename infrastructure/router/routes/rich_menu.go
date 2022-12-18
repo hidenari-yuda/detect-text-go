@@ -20,30 +20,6 @@ type RichMenuRoutes struct{}
 func (r *RichMenuRoutes) Create(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
 
-		richMemu := linebot.RichMenu{
-			Size:        linebot.RichMenuSize{Width: 2500, Height: 1686},
-			Selected:    true,
-			Name:        "richmenu",
-			ChatBarText: "Tap to open",
-
-			Areas: []linebot.AreaDetail{
-				{
-					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 2500, Height: 1686},
-					Action: linebot.RichMenuAction{
-						Type: linebot.RichMenuActionTypePostback,
-						Data: "action=campaign",
-					},
-				},
-				{
-					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 2500, Height: 1686},
-					Action: linebot.RichMenuAction{
-						Type: linebot.RichMenuActionTypePostback,
-						Data: "action=campaign",
-					},
-				},
-			},
-		}
-
 		cfg, err := config.New()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err)
@@ -55,14 +31,80 @@ func (r *RichMenuRoutes) Create(db *database.DB, firebase usecase.Firebase) func
 			return err
 		}
 
+		richMemu := linebot.RichMenu{
+			Size:        linebot.RichMenuSize{Width: 2500, Height: 1686},
+			Selected:    true,
+			Name:        "richmenu",
+			ChatBarText: "メニュー",
+
+			Areas: []linebot.AreaDetail{
+				{
+					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 833, Height: 562},
+					Action: linebot.RichMenuAction{
+						Type: linebot.RichMenuActionTypeMessage,
+						Text: "ポイント",
+					},
+				},
+				{
+					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 834, Height: 562},
+					Action: linebot.RichMenuAction{
+						Type: linebot.RichMenuActionTypeURI,
+						URI:  "https://line.me/R/nv/cameraRoll/multi",
+					},
+				},
+				{
+					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 833, Height: 562},
+					Action: linebot.RichMenuAction{
+						Type: linebot.RichMenuActionTypeMessage,
+						Text: "キャンペーン",
+					},
+				},
+			},
+		}
+
 		res, err := bot.CreateRichMenu(richMemu).Do()
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		println(res.RichMenuID)
+		fmt.Println("id:", res.RichMenuID)
 
 		c.JSON(http.StatusOK, res)
+		return nil
+	}
+}
+func (r *RichMenuRoutes) UploadImage(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			// richMenuID string
+			richMenuId = c.Param("richMenuId")
+			imagePath  = c.Param("imagePath")
+		)
+		// 		curl -v -X POST https://api-data.line.me/v2/bot/richmenu/richmenu-19682466851b21e2d7c0ed482ee0930f/content \
+		// -H 'Authorization: Bearer {channel access token}' \
+		// -H "Content-Type: image/png" \
+		// -T richmenu-a.png
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+
+			return err
+		}
+
+		res, err := bot.UploadRichMenuImage(richMenuId, imagePath).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Println("res:", res)
+		c.JSON(http.StatusOK, res)
+
 		return nil
 	}
 }
@@ -135,8 +177,17 @@ func (r *RichMenuRoutes) GetAll(db *database.DB, firebase usecase.Firebase) func
 			fmt.Println(err)
 			return err
 		}
+
+		// res, err := bot.GetRichMenu("7043267").Do()
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	return err
+		// }
+
+		fmt.Println("secret is here:", cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		fmt.Println("res is here:", res)
 		for _, richMenu := range res {
-			println(richMenu.RichMenuID)
+			fmt.Println(richMenu.RichMenuID)
 		}
 
 		// レスポンスの例

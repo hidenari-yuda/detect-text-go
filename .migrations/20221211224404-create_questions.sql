@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS questions (
   receipt_picture_id INT NOT NULL,
   question INT NOT NULL,
   text VARCHAR(255) NOT NULL,
-  selected INT,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),

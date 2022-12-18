@@ -29,7 +29,7 @@ func NewReceiptRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptReposito
 
 func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO receipts (
 			uuid,
 			receipt_picture_id,
@@ -66,7 +66,7 @@ func (r *ReceiptRepositoryImpl) Create(param *entity.Receipt) error {
 // update
 func (r *ReceiptRepositoryImpl) Update(param *entity.Receipt) error {
 	_, err := r.executer.Exec(
-		"Update",
+		r.Name+"Update",
 		`UPDATE receipts SET
 			store_name = ?,
 			total_price = ?,
@@ -92,7 +92,7 @@ func (r *ReceiptRepositoryImpl) GetById(id int) (*entity.Receipt, error) {
 		Receipt entity.Receipt
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&Receipt,
 		"SELECT * FROM receipts WHERE id = ?",
 		id,
@@ -110,7 +110,7 @@ func (r *ReceiptRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entit
 		ReceiptList []*entity.Receipt
 	)
 	err := r.executer.Select(
-		"GetByLineReceiptId",
+		r.Name+"GetListByLineUserId",
 		&ReceiptList, `
 		SELECT * 
 		FROM receipts 
@@ -137,7 +137,7 @@ func (r *ReceiptRepositoryImpl) GetListByToday(lineUserId string) ([]*entity.Rec
 		ReceiptList []*entity.Receipt
 	)
 	err := r.executer.Select(
-		"GetByLineReceiptId",
+		r.Name+"GetListByToday",
 		&ReceiptList, `
 		SELECT * 
 		FROM receipts 

@@ -30,7 +30,7 @@ type UserInteractorImpl struct {
 	paymentMethodRepository  usecase.PaymentMethodRepository
 	presentRepository        usecase.PresentRepository
 	lineMessageRepository    usecase.LineMessageRepository
-	aspRepository            usecase.AspRepository
+	adRepository             usecase.AdRepository
 }
 
 func NewUserInteractorImpl(
@@ -42,7 +42,7 @@ func NewUserInteractorImpl(
 	pmR usecase.PaymentMethodRepository,
 	pR usecase.PresentRepository,
 	lmR usecase.LineMessageRepository,
-	aR usecase.AspRepository,
+	aR usecase.AdRepository,
 ) UserInteractor {
 	return &UserInteractorImpl{
 		firebase:                 fb,
@@ -53,7 +53,7 @@ func NewUserInteractorImpl(
 		paymentMethodRepository:  pmR,
 		presentRepository:        pR,
 		lineMessageRepository:    lmR,
-		aspRepository:            aR,
+		adRepository:             aR,
 	}
 }
 

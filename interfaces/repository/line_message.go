@@ -29,7 +29,7 @@ func NewLineMessageRepositoryImpl(ex interfaces.SQLExecuter) usecase.LineMessage
 
 func (r *LineMessageRepositoryImpl) Create(param *entity.LineMessage) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO line_messages (
 			user_id,
 			line_user_id,
@@ -84,7 +84,7 @@ func (r *LineMessageRepositoryImpl) GetById(id int) (*entity.LineMessage, error)
 		LineMessage entity.LineMessage
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&LineMessage,
 		"SELECT * FROM line_messages WHERE id = ?",
 		id,
@@ -104,7 +104,7 @@ func (r *LineMessageRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*e
 		LineMessageList []*entity.LineMessage
 	)
 	err := r.executer.Select(
-		"GetByLineLineMessageId",
+		r.Name+"GetListByLineUserId",
 		&LineMessageList, `
 		SELECT * 
 		FROM line_messages 

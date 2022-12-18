@@ -22,11 +22,14 @@ import (
 func init() {
 	time.Local = utility.Tokyo
 
+	fmt.Println("APP_ENV:", os.Getenv("APP_ENV"))
+
 	if os.Getenv("APP_ENV") == "local" {
-		if err := godotenv.Load(); err != nil {
+		if err := godotenv.Load(".env"); err != nil {
 			panic("Failed to load .env file")
 		}
 	}
+
 }
 
 func main() {

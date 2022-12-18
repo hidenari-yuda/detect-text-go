@@ -138,43 +138,48 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 
 				switch message.Text {
 
+				// case "アップ":
+				// 	if _, err := param.Bot.ReplyMessage(
+				// 		event.ReplyToken,
+				// 		linebot.NewTextMessage("PayPay又はLINE Payの購入履歴のスクリーンショットを選んでだぺイ！"),
+				// 	).Do(); err != nil {
+				// 		return ok, fmt.Errorf("TextMessageのReplyMessageでエラー: %v", err)
+				// 	}
+
+				// 	time.Sleep(1 * time.Second)
+				// 	linebot.NewCameraRollAction("アップロード").QuickReplyAction()
+
+				// if _, err := param.Bot.Reply
+				// 	event.ReplyToken,
+				// 	linebot.NewCameraRollAction("アップロード"),
+				// ).Do(); err != nil {
+				// 	return ok, fmt.Errorf("TextMessageのReplyMessageでエラー: %v", err)
+				// }
+
 				case "キャンペーン":
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
 						linebot.NewTemplateMessage(
-							"キャンペーン",
-							linebot.NewButtonsTemplate(
-								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-								"キャンペーン",
-								"キャンペーンを確認するペイ！",
-								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
-							),
-						),
-						linebot.NewTemplateMessage(
-							"キャンペーン",
-							linebot.NewButtonsTemplate(
-								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-								"キャンペーン",
-								"キャンペーンを確認するペイ！",
-								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
-							),
-						),
-						linebot.NewTemplateMessage(
-							"キャンペーン",
-							linebot.NewButtonsTemplate(
-								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-								"キャンペーン",
-								"キャンペーンを確認するペイ！",
-								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
-							),
-						),
-						linebot.NewTemplateMessage(
-							"キャンペーン",
-							linebot.NewButtonsTemplate(
-								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-								"キャンペーン",
-								"キャンペーンを確認するペイ！",
-								linebot.NewURIAction("キャンペーンを確認するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+							"開催中のキャンペーン",
+							linebot.NewCarouselTemplate(
+								linebot.NewCarouselColumn(
+									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+									"キャンペーン1",
+									"キャンペーン",
+									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
+								),
+								linebot.NewCarouselColumn(
+									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+									"キャンペーン2",
+									"キャンペーン",
+									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
+								),
+								linebot.NewCarouselColumn(
+									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+									"キャンペーン3",
+									"キャンペーン",
+									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
+								),
 							),
 						),
 					).Do(); err != nil {
@@ -191,7 +196,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
 								"アンケート",
 								"アンケートを回答するペイ！",
-								linebot.NewURIAction("アンケートを回答するペイ！", "https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png"),
+								linebot.NewURIAction("アンケートを回答するペイ！", "line://app/1653824439-5jQXjz5A"),
 							),
 						),
 					).Do(); err != nil {
@@ -203,6 +208,23 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
 						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントです。", user.Point)),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTemplateMessage(
+							"下のボタンから還元する方法を選べるペイ！",
+							linebot.NewButtonsTemplate(
+								"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
+								"PayPayポイントに還元",
+								"PayPayポイントに還元",
+								linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+								// linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
+								// linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
+							),
+						),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
@@ -255,54 +277,54 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					}
 					return ok, nil
 
-				case "LINEポイントに還元":
+					// case "LINEPayポイントに還元":
 
-					presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
-						Point:          user.Point,
-						PaymentService: 1,
-					},
-					)
-					if err != nil || len(presentList) == 0 {
-						cfg, err := config.New()
-						botToAdmin, err := linebot.New(
-							cfg.Line.ChannelSecret,
-							cfg.Line.ChannelAccessToken,
-						)
+					// 	presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
+					// 		Point:          user.Point,
+					// 		PaymentService: 1,
+					// 	},
+					// 	)
+					// 	if err != nil || len(presentList) == 0 {
+					// 		cfg, err := config.New()
+					// 		botToAdmin, err := linebot.New(
+					// 			cfg.Line.ChannelSecret,
+					// 			cfg.Line.ChannelAccessToken,
+					// 		)
 
-						if _, eff := botToAdmin.PushMessage(
-							cfg.Line.AdminUserId,
-							linebot.NewTextMessage(
-								fmt.Sprintf(
-									"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
-									user.LineName,
-									user.StatusMessage,
-									user.Point,
-									"PayPay",
-									err,
-								),
-							),
-						).Do(); eff != nil {
-							return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
-						}
-					}
+					// 		if _, eff := botToAdmin.PushMessage(
+					// 			cfg.Line.AdminUserId,
+					// 			linebot.NewTextMessage(
+					// 				fmt.Sprintf(
+					// 					"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
+					// 					user.LineName,
+					// 					user.StatusMessage,
+					// 					user.Point,
+					// 					"PayPay",
+					// 					err,
+					// 				),
+					// 			),
+					// 		).Do(); eff != nil {
+					// 			return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
+					// 		}
+					// 	}
 
-					if _, err := param.Bot.ReplyMessage(
-						event.ReplyToken,
-						linebot.NewTextMessage("LINEポイントはこちらから確認できるペイ！\nhttps://point.line.me/"),
-					).Do(); err != nil {
-						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
-					}
+					// 	if _, err := param.Bot.ReplyMessage(
+					// 		event.ReplyToken,
+					// 		linebot.NewTextMessage("LINEポイントはこちらから確認できるペイ！\nhttps://point.line.me/"),
+					// 	).Do(); err != nil {
+					// 		return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					// 	}
 
-					// ギフトをdbに保存する
-					err = i.presentRepository.Update(&entity.Present{
-						Id:     presentList[0].Id,
-						UserId: user.Id,
-						// ReceiptPictureId: receiptPicture.Id,
-						Point:          presentList[0].Point,
-						PaymentService: presentList[0].PaymentService,
-						Url:            presentList[0].Url,
-					})
-					return ok, nil
+					// 	// ギフトをdbに保存する
+					// 	err = i.presentRepository.Update(&entity.Present{
+					// 		Id:     presentList[0].Id,
+					// 		UserId: user.Id,
+					// 		// ReceiptPictureId: receiptPicture.Id,
+					// 		Point:          presentList[0].Point,
+					// 		PaymentService: presentList[0].PaymentService,
+					// 		Url:            presentList[0].Url,
+					// 	})
+					// 	return ok, nil
 
 				}
 

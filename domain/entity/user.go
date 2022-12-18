@@ -14,6 +14,12 @@ type User struct {
 	StatusMessage string    `db:"status_message" json:"status_message"`
 	Language      string    `db:"language" json:"language"`
 	Point         int       `db:"point" json:"point"`
+	Prefecture    int       `db:"prefecture" json:"prefecture"`
+	Age           int       `db:"age" json:"age"`                     // 0: 10代, 1: 20代, 2: 30代, 3: 40代, 4: 50代, 5: 60代, 6: 70代以上
+	Gender        int       `db:"gender" json:"gender"`               // 0: 男性, 1: 女性 2: その他
+	Occupation    int       `db:"occupation" json:"occupation"`       // 0: 学生, 1: 会社員, 2: 自営業, 3: 公務員, 4: その他
+	Married       int       `db:"married" json:"married"`             // 0: 未婚, 1: 既婚
+	AnnualIncome  int       `db:"annual_income" json:"annual_income"` // 0: 100万円台, 1: 200万円台, 2: 300万円台, 3: 400万円台, 4: 500万円台, 5: 600万円台, 6: 700万円台, 7: 800万円台, 8: 900万円台, 9: 1000万円以上
 	Name          string    `db:"name" json:"name"`
 	Email         string    `db:"email" json:"email"`
 	Password      string    `db:"password" json:"password"`

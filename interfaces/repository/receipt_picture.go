@@ -29,7 +29,7 @@ func NewReceiptPictureRepositoryImpl(ex interfaces.SQLExecuter) usecase.ReceiptP
 
 func (r *ReceiptPictureRepositoryImpl) Create(param *entity.ReceiptPicture) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"Create",
 		`INSERT INTO receipt_pictures (
 			uuid,
 			user_id,
@@ -78,7 +78,7 @@ func (r *ReceiptPictureRepositoryImpl) Create(param *entity.ReceiptPicture) erro
 // update
 func (r *ReceiptPictureRepositoryImpl) Update(param *entity.ReceiptPicture) error {
 	_, err := r.executer.Exec(
-		"Update",
+		r.Name+"Update",
 		`UPDATE receipt_pictures SET
 			url = ?,
 			detected_text = ?,
@@ -110,7 +110,7 @@ func (r *ReceiptPictureRepositoryImpl) GetById(id int) (*entity.ReceiptPicture, 
 		ReceiptPicture entity.ReceiptPicture
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetById",
 		&ReceiptPicture,
 		"SELECT * FROM receipt_pictures WHERE id = ?",
 		id,
@@ -130,7 +130,7 @@ func (r *ReceiptPictureRepositoryImpl) GetListByLineUserId(lineUserId string) ([
 		ReceiptPictureList []*entity.ReceiptPicture
 	)
 	err := r.executer.Select(
-		"GetByLineReceiptPictureId",
+		r.Name+"GetListByLineUserId",
 		&ReceiptPictureList, `
 		SELECT * 
 		FROM receipt_pictures
@@ -157,7 +157,7 @@ func (r *ReceiptPictureRepositoryImpl) GetListByToday(lineUserId string) ([]*ent
 		ReceiptPictureList []*entity.ReceiptPicture
 	)
 	err := r.executer.Select(
-		"GetByLineReceiptPictureId",
+		r.Name+"GetListByToday",
 		&ReceiptPictureList, `
 		SELECT * 
 		FROM receipt_pictures

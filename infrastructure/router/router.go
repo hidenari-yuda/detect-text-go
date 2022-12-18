@@ -251,6 +251,9 @@ func (r *Router) SetUp() *Router {
 		// create
 		adminForRichMenuAPI.POST("", richMenuRoutes.Create(db, firebase))
 
+		// uploadImage
+		adminForRichMenuAPI.POST("/uploadImage/:richMenuId/:imagePath", richMenuRoutes.UploadImage(db, firebase))
+
 		// createAlias
 		adminForRichMenuAPI.POST("/alias", richMenuRoutes.CreateAlias(db, firebase))
 

@@ -24,7 +24,7 @@ func NewUserRepositoryImpl(ex interfaces.SQLExecuter) usecase.UserRepository {
 
 func (r *UserRepositoryImpl) SignUp(param *entity.SignUpParam) error {
 	_, err := r.executer.Exec(
-		"SignUp",
+		r.Name+"SignUp",
 		`INSERT INTO users (
 			uuid,
 			firebase_id,
@@ -75,7 +75,7 @@ func (r *UserRepositoryImpl) SignUp(param *entity.SignUpParam) error {
 
 func (r *UserRepositoryImpl) SignIn(email, password string) (user *entity.User, err error) {
 	err = r.executer.Get(
-		"SignIn",
+		r.Name+"SignIn",
 		user,
 		"SELECT * FROM users WHERE email = ? AND password = ?",
 		email,
@@ -94,7 +94,7 @@ func (r *UserRepositoryImpl) GetByFirebaseId(firebaseId string) (*entity.User, e
 		user entity.User
 	)
 	err := r.executer.Get(
-		"GetByFirebaseId",
+		r.Name+"GetByFirebaseId",
 		&user,
 		"SELECT * FROM users WHERE firebase_id = ?",
 		firebaseId,
@@ -114,7 +114,7 @@ func (r *UserRepositoryImpl) GetByLineUserId(lineUserId string) (*entity.User, e
 		user entity.User
 	)
 	err := r.executer.Get(
-		"GetByLineUserId",
+		r.Name+"GetByLineUserId",
 		&user,
 		"SELECT * FROM users WHERE line_user_id = ?",
 		lineUserId,
@@ -135,7 +135,7 @@ func (r *UserRepositoryImpl) GetAll() ([]*entity.User, error) {
 		users []*entity.User
 	)
 	err := r.executer.Select(
-		"GetAll",
+		r.Name+"GetAll",
 		&users,
 		"SELECT * FROM users ORDER BY id DESC",
 	)
