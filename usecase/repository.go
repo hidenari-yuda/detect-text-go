@@ -9,6 +9,11 @@ type UserRepository interface {
 	GetByFirebaseId(firebaseId string) (*entity.User, error)
 	GetByLineUserId(lineUserId string) (*entity.User, error)
 
+	// update
+	Update(param *entity.User) error
+	UpdateColumnStr(lineUserId, column, value string) error
+	UpdateColumnInt(lineUserId, column string, value int) error
+
 	// admin
 	GetAll() ([]*entity.User, error)
 }

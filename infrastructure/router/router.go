@@ -255,10 +255,22 @@ func (r *Router) SetUp() *Router {
 		adminForRichMenuAPI.POST("/uploadImage/:richMenuId/:imagePath", richMenuRoutes.UploadImage(db, firebase))
 
 		// createAlias
-		adminForRichMenuAPI.POST("/alias", richMenuRoutes.CreateAlias(db, firebase))
+		adminForRichMenuAPI.POST("/alias/:richMenuId/:aliasId", richMenuRoutes.CreateAlias(db, firebase))
+
+		//updateAlias
+		adminForRichMenuAPI.PUT("/alias/:richMenuId/:aliasId", richMenuRoutes.UpdateAlias(db, firebase))
+
+		//setAlias
+		adminForRichMenuAPI.PUT("/setAlias/:richMenuId/:aliasId", richMenuRoutes.SetAlias(db, firebase))
 
 		// getAll
 		adminForRichMenuAPI.GET("/all", richMenuRoutes.GetAll(db, firebase))
+
+		//deleteRichMenu
+		adminForRichMenuAPI.DELETE("/:richMenuId", richMenuRoutes.DeleteRichMenu(db, firebase))
+
+		//deleteAlias
+		adminForRichMenuAPI.DELETE("/alias/:aliasId", richMenuRoutes.DeleteAlias(db, firebase))
 	}
 
 	/****************************************************************************************/

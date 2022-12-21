@@ -114,7 +114,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				if _, err = param.Bot.ReplyMessage(
 					event.ReplyToken,
 					linebot.NewTextMessage(fmt.Sprintf(
-						"チェックが完了したペイ！\n\n    %v円分のプレゼントを%vで送るペイ！\n\n  今までのポイントを還元したい際は「ポイントを還元」から受け取ってレシ！\n\n",
+						"チェックが完了したペイ！\n\n    %v円分のプレゼントを%vで送るペイ！\n\n  今までのポイントを還元したい際は、メニューの「ポイント」ボタンから受け取ってレシ！\n\n",
 						presentPrice.Point,
 						convertPaymentServiceToStr(presentPrice.PaymentService),
 						// presentList[0].Url,

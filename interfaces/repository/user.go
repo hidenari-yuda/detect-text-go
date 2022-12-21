@@ -148,3 +148,84 @@ func (r *UserRepositoryImpl) GetAll() ([]*entity.User, error) {
 
 	return users, nil
 }
+
+func (r *UserRepositoryImpl) Update(user *entity.User) error {
+	_, err := r.executer.Exec(
+		r.Name+"Update",
+		`UPDATE users SET
+			name = ?,
+			email = ?,
+			password = ?,
+			line_user_id = ?,
+			line_name = ?,
+			picture_url = ?,
+			status_message = ?,
+			language = ?,
+			prefecture = ?,
+			age = ?,
+			gender = ?,
+			occupation = ?,
+			married = ?,
+			annual_income = ?,
+			updated_at = ?
+		WHERE line_user_id = ?`,
+		user.Name,
+		user.Email,
+		user.Password,
+		user.LineUserId,
+		user.LineName,
+		user.PictureUrl,
+		user.StatusMessage,
+		user.Language,
+		user.Prefecture,
+		user.Age,
+		user.Gender,
+		user.Occupation,
+		user.Married,
+		user.AnnualIncome,
+		time.Now(),
+		user.LineUserId,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to update user: %w", err)
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepositoryImpl) UpdateColumnStr(lineUserId, column, value string) error {
+	_, err := r.executer.Exec(
+		r.Name+"UpdateColumn",
+		"UPDATE users SET "+column+" = ? WHERE line_user_id = ?",
+		value,
+		lineUserId,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to update user column: %w", err)
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepositoryImpl) UpdateColumnInt(lineUserId, column string, value int) error {
+	_, err := r.executer.Exec(
+		r.Name+"UpdateColumn",
+		"UPDATE users SET "+column+" = ? WHERE line_user_id = ?",
+		value,
+		lineUserId,
+	)
+
+	if err != nil {
+		err = fmt.Errorf("failed to update user column: %w", err)
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}

@@ -73,6 +73,7 @@ func (r *RichMenuRoutes) Create(db *database.DB, firebase usecase.Firebase) func
 		return nil
 	}
 }
+
 func (r *RichMenuRoutes) UploadImage(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		var (
@@ -109,6 +110,72 @@ func (r *RichMenuRoutes) UploadImage(db *database.DB, firebase usecase.Firebase)
 	}
 }
 
+//deleteRichMenu
+func (r *RichMenuRoutes) DeleteRichMenu(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			richMenuId = c.Param("richMenuId")
+		)
+
+		if richMenuId == "" {
+			return c.JSON(http.StatusBadRequest, "richMenuAliasId is required")
+		}
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		res, err := bot.DeleteRichMenu(richMenuId).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		c.JSON(http.StatusOK, res)
+		return nil
+	}
+}
+
+//deleteRichMenu
+func (r *RichMenuRoutes) DeleteAlias(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			richMenuAliasId = c.Param("richMenuAliasId") // richmenu-alias-a
+		)
+
+		if richMenuAliasId == "" {
+			return c.JSON(http.StatusBadRequest, "richMenuAliasId is required")
+		}
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		res, err := bot.DeleteRichMenuAlias(richMenuAliasId).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		c.JSON(http.StatusOK, res)
+		return nil
+	}
+}
+
 func (r *RichMenuRoutes) CreateAlias(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		// 		curl -v -X POST https://api.line.me/v2/bot/richmenu/alias \
@@ -121,8 +188,8 @@ func (r *RichMenuRoutes) CreateAlias(db *database.DB, firebase usecase.Firebase)
 		// }'
 
 		var (
-			richMenuAliasId = c.Param("richMenuAliasId") // richmenu-alias-a
-			richMenuId      = c.Param("richMenuId")      // richmenu-19682466851b21e2d7c0ed482ee0930f
+			richMenuAliasId = c.Param("aliasId")    // richmenu-alias-a
+			richMenuId      = c.Param("richMenuId") // richmenu-19682466851b21e2d7c0ed482ee0930f
 		)
 
 		if richMenuId == "" || richMenuAliasId == "" {
@@ -146,11 +213,72 @@ func (r *RichMenuRoutes) CreateAlias(db *database.DB, firebase usecase.Firebase)
 			return err
 		}
 
-		// h := di.InitializeRichMenuHandler(db, firebase)
-		// presenter, err := h.CreateAlias(alias)
-		// if err != nil {
-		// 	return c.JSON(http.StatusInternalServerError, err)
-		// }
+		c.JSON(http.StatusOK, res)
+		return nil
+	}
+}
+
+// updateAlias
+func (r *RichMenuRoutes) UpdateAlias(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			richMenuAliasId = c.Param("aliasId")    // richmenu-alias-a
+			richMenuId      = c.Param("richMenuId") // richmenu-19682466851b21e2d7c0ed482ee0930f
+		)
+
+		if richMenuId == "" || richMenuAliasId == "" {
+			return c.JSON(http.StatusBadRequest, "richMenuId and richMenuAliasId are required")
+		}
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		res, err := bot.UpdateRichMenuAlias(richMenuAliasId, richMenuId).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		c.JSON(http.StatusOK, res)
+		return nil
+	}
+}
+
+// setAliasDefault
+func (r *RichMenuRoutes) SetAlias(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			richMenuAliasId = c.Param("aliasId") // richmenu-alias-a
+		)
+
+		if richMenuAliasId == "" {
+			return c.JSON(http.StatusBadRequest, "richMenuAliasId is required")
+		}
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		res, err := bot.SetDefaultRichMenu(richMenuAliasId).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 
 		c.JSON(http.StatusOK, res)
 		return nil
