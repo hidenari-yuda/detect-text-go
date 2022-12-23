@@ -32,31 +32,33 @@ func (r *RichMenuRoutes) Create(db *database.DB, firebase usecase.Firebase) func
 		}
 
 		richMemu := linebot.RichMenu{
-			Size:        linebot.RichMenuSize{Width: 2500, Height: 1686},
+			Size:        linebot.RichMenuSize{Width: 2500, Height: 1686 / 2},
 			Selected:    true,
 			Name:        "richmenu",
 			ChatBarText: "メニュー",
 
 			Areas: []linebot.AreaDetail{
 				{
-					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 833, Height: 562},
+					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 833, Height: 1686 / 2},
 					Action: linebot.RichMenuAction{
-						Type: linebot.RichMenuActionTypeMessage,
-						Text: "ポイント",
+						Type:        linebot.RichMenuActionTypeMessage,
+						DisplayText: "ポイント",
+						Text:        "ポイント",
 					},
 				},
 				{
-					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 834, Height: 562},
+					Bounds: linebot.RichMenuBounds{X: 833, Y: 0, Width: 834, Height: 1686 / 2},
 					Action: linebot.RichMenuAction{
 						Type: linebot.RichMenuActionTypeURI,
 						URI:  "https://line.me/R/nv/cameraRoll/multi",
 					},
 				},
 				{
-					Bounds: linebot.RichMenuBounds{X: 0, Y: 0, Width: 833, Height: 562},
+					Bounds: linebot.RichMenuBounds{X: 833 + 834, Y: 0, Width: 833, Height: 1686 / 2},
 					Action: linebot.RichMenuAction{
-						Type: linebot.RichMenuActionTypeMessage,
-						Text: "キャンペーン",
+						Type:        linebot.RichMenuActionTypeMessage,
+						DisplayText: "キャンペーン",
+						Text:        "キャンペーン",
 					},
 				},
 			},
@@ -106,6 +108,39 @@ func (r *RichMenuRoutes) UploadImage(db *database.DB, firebase usecase.Firebase)
 		fmt.Println("res:", res)
 		c.JSON(http.StatusOK, res)
 
+		return nil
+	}
+}
+
+// setAliasDefault
+func (r *RichMenuRoutes) SetRichMenu(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			richMenuId = c.Param("richMenuId") // richmenu-alias-a
+		)
+
+		if richMenuId == "" {
+			return c.JSON(http.StatusBadRequest, "richMenuAliasId is required")
+		}
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		res, err := bot.SetDefaultRichMenu(richMenuId).Do()
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		c.JSON(http.StatusOK, res)
 		return nil
 	}
 }
@@ -298,6 +333,32 @@ func (r *RichMenuRoutes) GetAll(db *database.DB, firebase usecase.Firebase) func
 		if err != nil {
 			fmt.Println(err)
 			return err
+		}
+
+		if _, err := bot.PushMessage(
+			cfg.Line.AdminUserId,
+			// linebot.NewButtonsTemplate
+			linebot.NewTemplateMessage(
+				"下のボタンから還元する方法を選べるペイ！",
+				linebot.NewCarouselTemplate(
+					linebot.NewCarouselColumn(
+						"",
+						"キャンペーン3",
+						"キャンペーン",
+						linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+					),
+				),
+				// linebot.NewButtonsTemplate(
+				// 	".public/snapshot/test.png",
+				// 	"PayPayポイントに還元",
+				// 	"PayPayポイントに還元",
+				// 	linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+				// // linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
+				// // linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
+				// ),
+			),
+		).Do(); err != nil {
+			return fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 		}
 
 		res, err := bot.GetRichMenuList().Do()

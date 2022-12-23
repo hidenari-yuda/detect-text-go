@@ -146,7 +146,7 @@ func (r *PresentRepositoryImpl) GetByPointAndService(present *entity.Present) ([
 		AND used = 0
 		ORDER BY point ASC
 		`,
-		present.Point, present.Point+20, present.PaymentService,
+		present.Point, present.Point+20, int(present.PaymentService),
 	)
 
 	if err != nil {

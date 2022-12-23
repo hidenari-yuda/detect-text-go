@@ -131,6 +131,7 @@ func (r *Router) SetUp() *Router {
 		userRoutes     = routes.UserRoutes{}
 		presentRoutes  = routes.PresentRoutes{}
 		richMenuRoutes = routes.RichMenuRoutes{}
+		testRoutes     = routes.TestRoutes{}
 	)
 
 	noAuthAPI := api.Group("api")
@@ -204,6 +205,10 @@ func (r *Router) SetUp() *Router {
 			return c.NoContent(http.StatusOK)
 		})
 
+		adminBasicAuthAPI.GET("/detect", testRoutes.DetectTest(db, firebase))
+
+		adminBasicAuthAPI.GET("/checkReceipt/:fileName", testRoutes.CheckReceiptTestRoutes(db, firebase))
+
 	}
 	/****************************************************************************************/
 	/// UserAPI
@@ -261,7 +266,10 @@ func (r *Router) SetUp() *Router {
 		adminForRichMenuAPI.PUT("/alias/:richMenuId/:aliasId", richMenuRoutes.UpdateAlias(db, firebase))
 
 		//setAlias
-		adminForRichMenuAPI.PUT("/setAlias/:richMenuId/:aliasId", richMenuRoutes.SetAlias(db, firebase))
+		adminForRichMenuAPI.POST("/setRichMenu/:richMenuId", richMenuRoutes.SetRichMenu(db, firebase))
+
+		//setAlias
+		adminForRichMenuAPI.POST("/setAlias/:richMenuId/:aliasId", richMenuRoutes.SetAlias(db, firebase))
 
 		// getAll
 		adminForRichMenuAPI.GET("/all", richMenuRoutes.GetAll(db, firebase))

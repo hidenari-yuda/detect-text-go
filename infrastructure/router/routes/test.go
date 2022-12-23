@@ -1,18 +1,120 @@
-package interactor
+package routes
 
 import (
 	"context"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"time"
 
 	vision "cloud.google.com/go/vision/apiv1"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
+	"github.com/hidenari-yuda/paychan-server/infrastructure/di"
+	"github.com/hidenari-yuda/paychan-server/usecase"
+	"github.com/hidenari-yuda/paychan-server/usecase/interactor"
+	"github.com/labstack/echo/v4"
+	"google.golang.org/api/option"
 )
 
-func CheckReceipt(
+type TestRoutes struct {
+}
+
+func (r *TestRoutes) DetectTest(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		_ = di.InitializeUserHandler(db, firebase)
+
+		filePath := fmt.Sprint(".public/snapshot/test.png") // ファイル名をユニークにする
+		fileTest, err := os.Open(filePath)
+		// byteData, err := io.ReadAll(fileTest)
+		// if err != nil {
+		// 	fmt.Println("ファイルが読み込めません:", err)
+		// 	return err
+		// }
+
+		// err = os.WriteFile(filePath, byteData, 0644)
+		// if err != nil {
+		// 	fmt.Println("ファイルが書き出せません:", err)
+		// 	return err
+		// }
+
+		// io.Writer
+		w := io.Writer(os.Stdout)
+
+		ctx := context.Background()
+		// cfg, err := config.New()
+		// fmt.Println("vision.NewImageAnnotatorClient(ctx)に入ります", cfg.Google.ApplicationCredentials)
+
+		// client, err := vision.NewImageAnnotatorClient(ctx)
+		client, err := vision.NewImageAnnotatorClient(ctx, option.WithCredentialsFile(".conf/google-application-credentials-prd.json"))
+		if err != nil {
+			fmt.Println("vision.NewImageAnnotatorClient(ctx)に失敗しました:", err)
+			return err
+		}
+
+		file, err := os.Open(filePath)
+		if err != nil {
+			fmt.Println("os.Open(filePath)に失敗しました:", err)
+			return err
+		}
+		defer file.Close()
+
+		image, err := vision.NewImageFromReader(fileTest)
+		if err != nil {
+			fmt.Println("vision.NewImageFromReader(fileTest)に失敗しました:", err)
+			return err
+		}
+		annotations, err := client.DetectTexts(ctx, image, nil, 10)
+		if err != nil {
+			fmt.Println("client.DetectTexts(ctx, image, nil, 10)に失敗しました:", err)
+			return err
+		}
+
+		if len(annotations) == 0 {
+			fmt.Fprintln(w, "No text found.")
+			return err
+		}
+
+		fmt.Println("Texts:", annotations[0].Description)
+
+		// s
+
+		// renderJSON(c, annotations)
+		return nil
+	}
+}
+
+func (r *TestRoutes) CheckReceiptTestRoutes(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		var (
+			fileName string = c.Param("fileName")
+		)
+		_ = di.InitializeUserHandler(db, firebase)
+		fmt.Println(fileName)
+
+		filePath := fmt.Sprintf(".public/snapshot/%s", fileName) // ファイル名をユニークにする
+
+		file, err := os.Open(filePath)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		defer file.Close()
+
+		var receiptPictureList []*entity.ReceiptPicture = []*entity.ReceiptPicture{}
+
+		receiptPicture, present, err := CheckReceiptTest(file, receiptPictureList)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		fmt.Println(receiptPicture, present)
+		return nil
+	}
+}
+
+func CheckReceiptTest(
 	content io.ReadCloser,
 	receiptPictureList []*entity.ReceiptPicture,
 ) (
@@ -45,6 +147,8 @@ func CheckReceipt(
 		return receiptPicture, present, err
 	}
 
+	fmt.Println("vision.NewImageAnnotatorClient(ctx)に入ります")
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
@@ -58,17 +162,21 @@ func CheckReceipt(
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
+
+	fmt.Println("vision.NewImageFromReader(file)に入ります")
 	annotations, err := client.DetectTexts(ctx, image, nil, 10)
 	if err != nil {
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
+	fmt.Println("client.DetectTexts(ctx, image, nil, 10)に入ります")
 
 	if len(annotations) == 0 {
 		fmt.Fprintln(w, "No text found.")
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
+	fmt.Println("Texts:", annotations[0].Description)
 	// receiptPicture.DetectedText = annotations[0].Description
 
 	for _, v := range receiptPictureList {
@@ -77,6 +185,7 @@ func CheckReceipt(
 			return receiptPicture, present, err
 		}
 	}
+	fmt.Println("receiptPictureListに入ります")
 
 	// "ホーム", "お知らせ", "出品", "支払い", "マイページ", // mercari
 	// "取引履歴", "PayPay", // paypay
@@ -87,7 +196,7 @@ func CheckReceipt(
 	// auPay
 	// famiPay
 
-	strMap := ContainsList(annotations[0].Description,
+	strMap := interactor.ContainsList(annotations[0].Description,
 		"合計", "円", "¥",
 		"毎月のご利用状況", "出品", // mercari
 		"取引履歴", "PayPay", // paypay
@@ -163,19 +272,10 @@ func CheckReceipt(
 	}
 
 	fmt.Println("len is:", len)
+	fmt.Println("point is:", point)
+	fmt.Println("present is:", present)
+	fmt.Println("receiptPicture is:", receiptPicture)
 
 	// dbに保存
 	return receiptPicture, present, nil
-}
-
-func ContainsList(s string, list ...string) map[string]bool {
-	var (
-		strMap = make(map[string]bool)
-	)
-	for _, v := range list {
-		if strings.Contains(s, v) {
-			strMap[v] = true
-		}
-	}
-	return strMap
 }
