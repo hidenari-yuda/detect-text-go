@@ -335,32 +335,6 @@ func (r *RichMenuRoutes) GetAll(db *database.DB, firebase usecase.Firebase) func
 			return err
 		}
 
-		if _, err := bot.PushMessage(
-			cfg.Line.AdminUserId,
-			// linebot.NewButtonsTemplate
-			linebot.NewTemplateMessage(
-				"下のボタンから還元する方法を選べるペイ！",
-				linebot.NewCarouselTemplate(
-					linebot.NewCarouselColumn(
-						"",
-						"キャンペーン3",
-						"キャンペーン",
-						linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
-					),
-				),
-				// linebot.NewButtonsTemplate(
-				// 	".public/snapshot/test.png",
-				// 	"PayPayポイントに還元",
-				// 	"PayPayポイントに還元",
-				// 	linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
-				// // linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
-				// // linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
-				// ),
-			),
-		).Do(); err != nil {
-			return fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
-		}
-
 		res, err := bot.GetRichMenuList().Do()
 		if err != nil {
 			fmt.Println(err)

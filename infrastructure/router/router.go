@@ -209,6 +209,8 @@ func (r *Router) SetUp() *Router {
 
 		adminBasicAuthAPI.GET("/checkReceipt/:fileName", testRoutes.CheckReceiptTestRoutes(db, firebase))
 
+		adminBasicAuthAPI.GET("/pushMessageTest", testRoutes.PushMessageTest(db, firebase))
+
 	}
 	/****************************************************************************************/
 	/// UserAPI

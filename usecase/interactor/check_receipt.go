@@ -35,7 +35,7 @@ func CheckReceipt(
 	}
 
 	// io.Writer
-	w := io.Writer(os.Stdout)
+	// w := io.Writer(os.Stdout)
 
 	ctx := context.Background()
 
@@ -58,6 +58,7 @@ func CheckReceipt(
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
+
 	annotations, err := client.DetectTexts(ctx, image, nil, 10)
 	if err != nil {
 		fmt.Println(err)
@@ -65,7 +66,6 @@ func CheckReceipt(
 	}
 
 	if len(annotations) == 0 {
-		fmt.Fprintln(w, "No text found.")
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
@@ -95,55 +95,8 @@ func CheckReceipt(
 		// "取引履歴", "売上", "出品", "購入", "お知らせ", "マイページ", // yahoo
 		// "ホーム", "お知らせ", "出品", "購入", "マイページ", // rakuma
 		// "ホーム", "お知らせ", "出品", "購入", "マイページ", // yahoo
-		// "お買い上げ", "合計金額", "お支払い", "お届け先", "ご注文内容", // rakuten
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // suica
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // pasmo
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // nanaco
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // waon
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // manaca
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // piapo
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // my number
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // edy
-		// "ご利用金額", "ご利用明細", "ご利用日", "ご利用店舗", "ご利用店舗", // nimoca
+		// "お買い上げ", "合計金額", "お支払い", "お届け先", "ご注文内容", // rakuten suica  pasmo nanaco waon// manaca // piapo// my number // edy // nimoca
 	)
-
-	receiptPicture = &entity.ReceiptPicture{
-		DetectedText: annotations[0].Description,
-	}
-
-	if strMap["取引履歴"] || strMap["PayPay"] {
-		receiptPicture.Service = 0
-		receiptPicture.PaymentService = 0
-	} else if strMap["支払い履歴"] || strMap["過去1ヶ月"] {
-		receiptPicture.Service = 1
-		receiptPicture.PaymentService = 0
-	} else if strMap["出品"] || strMap["毎月のご利用状況"] {
-		receiptPicture.Service = 2
-		receiptPicture.PaymentService = 0
-	}
-
-	// strings.Contains(annotations[0].Description, "合計", "円", "¥")
-
-	for i, _ := range annotations {
-		fmt.Println("number is:", i, "\n", "detected text is:", annotations[i].Description)
-
-		// receipt.StoreName = annotations[i].Descriptions
-
-		// parchasedItem := entity.ParchasedItem{
-		// 	Name: annotations[i].Description,
-		// 	// Price: annotations[i].Description,
-		// 	Price: 0,
-		// }
-
-		// if ContainsList(annotations[i].Description, "円", "¥") {
-		// 	receipt.ParchasedItems = append(receipt.ParchasedItems, entity.ParchasedItem{
-		// 		Name:  annotations[i-1].Description,
-		// 		Price: 0,
-		// 	})
-		// }
-
-		// receipt.ParchasedItems = append(receipt.ParchasedItems, parchasedItem)
-	}
 
 	var point int
 	// len := annotations[0].BoundingPoly.Vertices[2].X - annotations[0].BoundingPoly.Vertices[0].X
@@ -162,6 +115,45 @@ func CheckReceipt(
 		Point: point,
 	}
 
+	receiptPicture = &entity.ReceiptPicture{
+		DetectedText: annotations[0].Description,
+	}
+
+	if strMap["取引履歴"] || strMap["PayPay"] {
+		receiptPicture.Service = 0
+		receiptPicture.PaymentService = 0
+	} else if strMap["支払い履歴"] || strMap["過去1ヶ月"] {
+		receiptPicture.Service = 1
+		receiptPicture.PaymentService = 1
+	} else if strMap["出品"] || strMap["毎月のご利用状況"] {
+		receiptPicture.Service = 2
+		receiptPicture.PaymentService = 2
+	}
+
+	// strings.Contains(annotations[0].Description, "合計", "円", "¥")
+
+	// for i, _ := range annotations {
+	// 	fmt.Println("number is:", i, "\n", "detected text is:", annotations[i].Description)
+
+	// receipt.StoreName = annotations[i].Descriptions
+
+	// parchasedItem := entity.ParchasedItem{
+	// 	Name: annotations[i].Description,
+	// 	// Price: annotations[i].Description,
+	// 	Price: 0,
+	// }
+
+	// if ContainsList(annotations[i].Description, "円", "¥") {
+	// 	receipt.ParchasedItems = append(receipt.ParchasedItems, entity.ParchasedItem{
+	// 		Name:  annotations[i-1].Description,
+	// 		Price: 0,
+	// 	})
+	// }
+
+	// receipt.ParchasedItems = append(receipt.ParchasedItems, parchasedItem)
+	// }
+
+	fmt.Println("detected text is:", annotations[0].Description)
 	fmt.Println("len is:", len)
 
 	// dbに保存

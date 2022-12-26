@@ -33,6 +33,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 			}
 		}
 
+		// メッセージのタイプで処理を分ける
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 
@@ -44,29 +45,6 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				receiptPictures, err := i.receiptPictureRepository.GetListByToday(event.Source.UserID)
 				if err != nil {
 					return ok, fmt.Errorf("今日登録されたレシートのリストの取得エラー: %w", err)
-				}
-
-				// コンテンツ取得
-				content, err := param.Bot.GetMessageContent(message.ID).Do()
-				if err != nil {
-					return ok, fmt.Errorf("getMessageContentでエラー: %v", err)
-				}
-				defer content.Content.Close()
-
-				fmt.Println("content.Content", content.Content)
-
-				// レシートか判定
-				receiptPicture, presentPrice, err := CheckReceipt(content.Content, receiptPictures)
-				if err != nil {
-
-					if _, err = param.Bot.ReplyMessage(
-						event.ReplyToken,
-						linebot.NewTextMessage(fmt.Sprint("レシートが認識できませんでした。\nもう1度やり直してペイ")),
-					).Do(); err != nil {
-						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
-					}
-
-					return ok, fmt.Errorf("checkReceiptでエラー: %v", err)
 				}
 
 				// 10件以上の場合は、10件以上ある旨を通知する
@@ -84,43 +62,285 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					}
 				}
 
+				// コンテンツ取得
+				content, err := param.Bot.GetMessageContent(message.ID).Do()
+				if err != nil {
+					return ok, fmt.Errorf("getMessageContentでエラー: %v", err)
+				}
+				defer content.Content.Close()
+
+				// レシートか判定
+				receiptPicture, presentPrice, err := CheckReceipt(content.Content, receiptPictures)
+				if err != nil {
+
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(fmt.Sprint("レシートが認識できませんでした。\nもう1度やり直してペイ")),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+
+					return ok, fmt.Errorf("checkReceiptでエラー: %v", err)
+				}
+
 				// プレゼントを取得
 				// presentList, err := i.presentRepository.GetByPointAndService(presentPrice)
 				// if err != nil || len(presentList) == 0 {
-				cfg, err := config.New()
-				botToAdmin, err := linebot.New(
-					cfg.Line.ChannelSecret,
-					cfg.Line.ChannelAccessToken,
-				)
+				// cfg, err := config.New()
+				// botToAdmin, err := linebot.New(
+				// 	cfg.Line.ChannelSecret,
+				// 	cfg.Line.ChannelAccessToken,
+				// )
 
-				if _, err := botToAdmin.PushMessage(
-					cfg.Line.AdminUserId,
-					linebot.NewTextMessage(
-						fmt.Sprintf(
-							"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
-							user.LineName,
-							user.StatusMessage,
-							presentPrice.Point,
-							convertPaymentServiceToStr(presentPrice.PaymentService),
-							err,
-						),
-					),
-				).Do(); err != nil {
-					return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
-				}
+				// if _, err := botToAdmin.PushMessage(
+				// 	cfg.Line.AdminUserId,
+				// 	linebot.NewTextMessage(
+				// 		fmt.Sprintf(
+				// 			"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
+				// 			user.LineName,
+				// 			user.StatusMessage,
+				// 			presentPrice.Point,
+				// 			convertPaymentServiceToStr(presentPrice.PaymentService),
+				// 			err,
+				// 		),
+				// 	),
+				// ).Do(); err != nil {
+				// 	return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
+				// }
 				// 	return ok, fmt.Errorf("プレゼントの取得エラー: %w", err)
 				// }
 
-				if _, err = param.Bot.ReplyMessage(
-					event.ReplyToken,
-					linebot.NewTextMessage(fmt.Sprintf(
-						"チェックが完了したペイ！\n\n    %v円分のプレゼントを%vで送るペイ！\n\n  今までのポイントを還元したい際は、メニューの「ポイント」ボタンから受け取ってレシ！\n\n",
-						presentPrice.Point,
-						convertPaymentServiceToStr(presentPrice.PaymentService),
-						// presentList[0].Url,
-					)),
-				).Do(); err != nil {
-					return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+				questionMessageSelectionlength := len(entity.QuestionMessageSelection[user.QuestionProgress])
+				if questionMessageSelectionlength == 2 {
+
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+				} else if questionMessageSelectionlength == 3 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+				} else if questionMessageSelectionlength == 4 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+
+				} else if questionMessageSelectionlength == 5 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+				} else if questionMessageSelectionlength == 6 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+				} else if questionMessageSelectionlength == 7 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+				} else if questionMessageSelectionlength == 8 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+							),
+						),
+						linebot.NewTemplateMessage(
+							"アンケート",
+							linebot.NewButtonsTemplate(
+								"",
+								"",
+								entity.QuestionMessageTitle[user.QuestionProgress],
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageSelection[user.QuestionProgress][7]),
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
 				}
 
 				// レシート情報をdbに登録
@@ -128,6 +348,12 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				if err != nil {
 					return ok, fmt.Errorf("レシート情報の登録エラー: %w", err)
 				}
+
+				// ユーザーのポイントを更新
+				user.Point += presentPrice.Point
+
+				// ユーザー情報をdbに更新
+				err = i.userRepository.Update(user)
 
 				fmt.Println("image function is ok!!")
 
@@ -163,54 +389,70 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 							"開催中のキャンペーン",
 							linebot.NewCarouselTemplate(
 								linebot.NewCarouselColumn(
-									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-									"キャンペーン1",
-									"キャンペーン",
-									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
-								),
-								linebot.NewCarouselColumn(
-									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-									"キャンペーン2",
-									"キャンペーン",
-									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
-								),
-								linebot.NewCarouselColumn(
-									"https://paypay-qr.s3-ap-northeast-1.amazonaws.com/qr/qr_2021_06_01_01_00_00_0000000000000000000000000000000000000000000000000000000000000000.png",
-									"キャンペーン3",
-									"キャンペーン",
-									linebot.NewMessageAction("キャンペーン", "キャンペーン"),
-								),
-							),
-						),
-					).Do(); err != nil {
-						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
-					}
-					return ok, nil
-
-				case "アンケート":
-					if _, err := param.Bot.ReplyMessage(
-						event.ReplyToken,
-						linebot.NewTemplateMessage(
-
-							"アンケート",
-							linebot.NewCarouselTemplate(
-								linebot.NewCarouselColumn(
 									"",
-									"アンケート",
-									"アンケートを回答するペイ！",
-									linebot.NewURIAction("アンケートを回答するペイ！", "line://app/1653824439-5jQXjz5A"),
+									"準備中",
+									"実装までしばらく待ってペイ！",
+									// linebot.NewMessageAction("キャンペーン", "準備中"),
 								),
+								// linebot.NewCarouselColumn(
+								// 	"",
+								// 	"準備中",
+								// 	"実装までしばらく待ってくださいペイ！",
+								// 	// linebot.NewMessageAction("キャンペーン", "キャンペーン"),
+								// ),
+								// linebot.NewCarouselColumn(
+								// 	"",
+								// 	"アンケート",
+								// 	"簡単なアンケートに答えてポイントゲット！",
+								// 	linebot.NewMessageAction("プロフィールアンケート", "プロフィールアンケート"),
+								// ),
 							),
 						),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
 					return ok, nil
+
+				// case "プロフィールアンケート":
+				// 	if _, err := param.Bot.ReplyMessage(
+				// 		event.ReplyToken,
+				// 		linebot.NewTemplateMessage(
+				// 			"プロフィールアンケート",
+				// 			linebot.NewButtonsTemplate(
+				// 				"",
+				// 				"アンケート",
+				// 				"アンケートに答えてポイントゲット！",
+				// 				linebot.NewMessageAction("購入アンケート", "購入アンケート"),
+				// 				linebot.NewMessageAction("購入アンケート", "購入アンケート"),
+				// 			),
+				// 		),
+				// 	).Do(); err != nil {
+				// 		return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+				// 	}
+				// 	return ok, nil
+
+				// case "アンケート":
+				// 	if _, err := param.Bot.ReplyMessage(
+				// 		event.ReplyToken,
+				// 		linebot.NewTemplateMessage(
+				// 			"プロフィールアンケート",
+				// 			linebot.NewButtonsTemplate(
+				// 				"",
+				// 				"アンケート",
+				// 				"アンケートに答えてポイントゲット！",
+				// 				linebot.NewMessageAction("プロフィールアンケート", "プロフィールアンケート"),
+				// 				linebot.NewMessageAction("購入アンケート", "購入アンケート"),
+				// 			),
+				// 		),
+				// 	).Do(); err != nil {
+				// 		return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+				// 	}
+				// 	return ok, nil
 
 				case "ポイント":
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
-						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントです。", user.Point)),
+						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントだペイ！", user.Point)),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
@@ -388,6 +630,241 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 	return ok, nil
 
 }
+
+// func PushQuestionMessage(user *entity.User, presentPrice *entity.Present param *) error {
+// 	questionMessageSelectionlength := len(entity.QuestionMessageSelection[user.QuestionProgress])
+// 	if questionMessageSelectionlength == 2 {
+
+// 		if _, err := param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	} else if questionMessageSelectionlength == 3 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	} else if questionMessageSelectionlength == 4 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+
+// 	} else if questionMessageSelectionlength == 5 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	} else if questionMessageSelectionlength == 6 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	} else if questionMessageSelectionlength == 7 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	} else if questionMessageSelectionlength == 8 {
+// 		if _, err = param.Bot.ReplyMessage(
+// 			event.ReplyToken,
+// 			linebot.NewTextMessage(
+// 				fmt.Sprintf(
+// 					"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+// 					presentPrice.Point,
+// 					user.Point+presentPrice.Point,
+// 					// convertPaymentServiceToStr(presentPrice.PaymentService),
+// 					// presentList[0].Url,
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 				),
+// 			),
+// 			linebot.NewTemplateMessage(
+// 				"アンケート",
+// 				linebot.NewButtonsTemplate(
+// 					"",
+// 					"",
+// 					entity.QuestionMessageTitle[user.QuestionProgress],
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageSelection[user.QuestionProgress][7]),
+// 				),
+// 			),
+// 		).Do(); err != nil {
+// 			return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+// 		}
+// 	}
+// }
 
 func convertPaymentServiceToStr(paymentService int) string {
 	// switch paymentService {

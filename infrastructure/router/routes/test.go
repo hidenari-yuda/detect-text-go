@@ -4,16 +4,19 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"time"
 
 	vision "cloud.google.com/go/vision/apiv1"
+	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/database"
 	"github.com/hidenari-yuda/paychan-server/infrastructure/di"
 	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/hidenari-yuda/paychan-server/usecase/interactor"
 	"github.com/labstack/echo/v4"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"google.golang.org/api/option"
 )
 
@@ -278,4 +281,59 @@ func CheckReceiptTest(
 
 	// dbに保存
 	return receiptPicture, present, nil
+}
+
+func (r *TestRoutes) PushMessageTest(db *database.DB, firebase usecase.Firebase) func(c echo.Context) error {
+	return func(c echo.Context) error {
+
+		cfg, err := config.New()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err)
+		}
+
+		bot, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelAccessToken)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if _, err := bot.PushMessage(
+			cfg.Line.AdminUserId,
+			// linebot.NewButtonsTemplate
+			linebot.NewTemplateMessage(
+				"下のボタンから還元する方法を選べるペイ！",
+				linebot.NewButtonsTemplate(
+					"",
+					"",
+					"下のボタンから還元する方法を選べるペイ！",
+					linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+					linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
+					linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
+					linebot.NewMessageAction("sss", ""),
+				),
+			),
+
+			// linebot.NewCarouselTemplate(
+			// 	linebot.NewCarouselColumn(
+			// 		"",
+			// 		"キャンペーン3",
+			// 		"キャンペーン",
+			// 		linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+			// 	),
+			// ),
+			// linebot.NewButtonsTemplate(
+			// 	".public/snapshot/test.png",
+			// 	"PayPayポイントに還元",
+			// 	"PayPayポイントに還元",
+			// 	linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+			// // linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
+			// // linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
+			// ),
+			// ),
+		).Do(); err != nil {
+			return fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+		}
+
+		return c.JSON(http.StatusOK, "ok")
+	}
 }

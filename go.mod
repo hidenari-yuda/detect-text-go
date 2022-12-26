@@ -4,12 +4,11 @@ go 1.18
 
 require (
 	cloud.google.com/go/firestore v1.9.0
-	cloud.google.com/go/storage v1.27.0
 	cloud.google.com/go/vision v1.2.0
-	cloud.google.com/go/vision/v2 v2.5.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
 	github.com/jmoiron/sqlx v1.3.5
@@ -33,6 +32,8 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/iam v0.8.0 // indirect
 	cloud.google.com/go/longrunning v0.3.0 // indirect
+	cloud.google.com/go/storage v1.27.0 // indirect
+	cloud.google.com/go/vision/v2 v2.5.0 // indirect
 	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

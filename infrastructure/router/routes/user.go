@@ -198,12 +198,12 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 
 		// 画像メッセージの場合、先にメッセージを返す
 		// events[0].Message.(*linebot.ImageMessage).Message != nil
-		if events[0].Type == linebot.EventTypeMessage {
-			switch events[0].Message.(type) {
-			case *linebot.ImageMessage:
-				_, err = bot.ReplyMessage(events[0].ReplyToken, linebot.NewTextMessage("確認中...")).Do()
-			}
-		}
+		// if events[0].Type == linebot.EventTypeMessage {
+		// 	switch events[0].Message.(type) {
+		// 	case *linebot.ImageMessage:
+		// 		_, err = bot.ReplyMessage(events[0].ReplyToken, linebot.NewTextMessage("確認中...")).Do()
+		// 	}
+		// }
 
 		param := &entity.LineWebHook{
 			Bot:                bot,
