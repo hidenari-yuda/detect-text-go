@@ -302,34 +302,56 @@ func (r *TestRoutes) PushMessageTest(db *database.DB, firebase usecase.Firebase)
 			// linebot.NewButtonsTemplate
 			linebot.NewTemplateMessage(
 				"下のボタンから還元する方法を選べるペイ！",
-				linebot.NewButtonsTemplate(
-					"",
-					"",
-					"下のボタンから還元する方法を選べるペイ！",
-					linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
-					linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
-					linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
-					linebot.NewMessageAction("sss", ""),
-				),
-			),
+				// 	linebot.NewButtonsTemplate(
+				// 		"",
+				// 		"",
+				// 		"下のボタンから還元する方法を選べるペイ！",
+				// 		linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+				// 		linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
+				// 		linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
+				// 		linebot.NewMessageAction("sss", "s"),
+				// 	),
+				// ),
+				// linebot.NewTemplateMessage(
+				// 	"下のボタンから還元する方法を選べるペイ！",
+				// 	linebot.NewButtonsTemplate(
+				// 		"",
+				// 		"",
+				// 		"下のボタンから還元する方法を選べるペイ！",
+				// 		linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+				// 		linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
+				// 		linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
+				// 		linebot.NewMessageAction("sss", "s"),
+				// 	),
+				// ),
 
-			// linebot.NewCarouselTemplate(
-			// 	linebot.NewCarouselColumn(
-			// 		"",
-			// 		"キャンペーン3",
-			// 		"キャンペーン",
-			// 		linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
-			// 	),
-			// ),
-			// linebot.NewButtonsTemplate(
-			// 	".public/snapshot/test.png",
-			// 	"PayPayポイントに還元",
-			// 	"PayPayポイントに還元",
-			// 	linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
-			// // linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
-			// // linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
-			// ),
-			// ),
+				linebot.NewCarouselTemplate(
+					linebot.NewCarouselColumn(
+						"",
+						"",
+						"キャンペーン",
+						linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+						linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
+						linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
+					),
+					linebot.NewCarouselColumn(
+						"",
+						"",
+						"キャンペーン",
+						linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+						linebot.NewMessageAction("PayPayカードに還元", "PayPayカードに還元"),
+						linebot.NewMessageAction("PayPay残高に還元", "PayPay残高に還元"),
+					),
+				),
+				// linebot.NewButtonsTemplate(
+				// 	".public/snapshot/test.png",
+				// 	"PayPayポイントに還元",
+				// 	"PayPayポイントに還元",
+				// 	linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+				// // linebot.NewMessageAction("LINEPayポイントに還元", "LINEPayポイントに還元"),
+				// // linebot.NewURIAction("PayPayポイントに還元", "line://app/1653824439-5jQXjz5A"),
+				// ),
+			),
 		).Do(); err != nil {
 			return fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 		}

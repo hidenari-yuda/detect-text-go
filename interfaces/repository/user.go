@@ -165,7 +165,7 @@ func (r *UserRepositoryImpl) Update(user *entity.User) error {
 			age = ?,
 			gender = ?,
 			occupation = ?,
-			married = ?,
+			marrige = ?,
 			annual_income = ?,
 			updated_at = ?
 		WHERE line_user_id = ?`,
@@ -181,7 +181,7 @@ func (r *UserRepositoryImpl) Update(user *entity.User) error {
 		user.Age,
 		user.Gender,
 		user.Occupation,
-		user.Married,
+		user.Marriage,
 		user.AnnualIncome,
 		time.Now(),
 		user.LineUserId,

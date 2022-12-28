@@ -110,6 +110,32 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				// 	return ok, fmt.Errorf("プレゼントの取得エラー: %w", err)
 				// }
 
+				if user.QuestionProgress > len(entity.QuestionMessageTitle)-1 {
+					if _, err = param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage(
+							fmt.Sprintf(
+								"チェックが完了したペイ！\n\n    %v円分のポイントをプレゼントするペイ！\n\nこれまで保有しているポイントは、%vポイントだペイ！\n\n今までのポイントを還元したい際は、メニューの「ポイント」ボタンからPayPayポイントとして受け取れるペイ！",
+								presentPrice.Point,
+								user.Point+presentPrice.Point,
+								// convertPaymentServiceToStr(presentPrice.PaymentService),
+								// presentList[0].Url,
+							),
+						),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("ImageMessageのReplyMessageでエラー: %v", err)
+					}
+
+					// 質問が終わっている場合は、未回答の質問を取得する
+					// if user.Age == 99 {
+					// 	user.QuestionProgress = 0
+					// } else if user.Gender == 99 {
+					// 	user.QuestionProgress = 1
+					// } else if user.Marriage == 99 {
+					// 	user.QuestionProgress = 2
+					// }
+				}
+
 				questionMessageSelectionlength := len(entity.QuestionMessageSelection[user.QuestionProgress])
 				if questionMessageSelectionlength == 2 {
 
@@ -130,8 +156,8 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
 							),
 						),
 					).Do(); err != nil {
@@ -155,9 +181,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
 							),
 						),
 					).Do(); err != nil {
@@ -181,10 +207,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 							),
 						),
 					).Do(); err != nil {
@@ -205,23 +231,22 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						),
 						linebot.NewTemplateMessage(
 							"アンケート",
-							linebot.NewButtonsTemplate(
-								"",
-								"",
-								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
-							),
-						),
-						linebot.NewTemplateMessage(
-							"アンケート",
-							linebot.NewButtonsTemplate(
-								"",
-								"",
-								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+							linebot.NewCarouselTemplate(
+								linebot.NewCarouselColumn(
+									"",
+									"",
+									entity.QuestionMessageTitle[user.QuestionProgress],
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								),
+								linebot.NewCarouselColumn(
+									"",
+									"",
+									fmt.Sprint(entity.QuestionMessageTitle[user.QuestionProgress], "2"),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								),
 							),
 						),
 					).Do(); err != nil {
@@ -241,24 +266,23 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						),
 						linebot.NewTemplateMessage(
 							"アンケート",
-							linebot.NewButtonsTemplate(
-								"",
-								"",
-								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
-							),
-						),
-						linebot.NewTemplateMessage(
-							"アンケート",
-							linebot.NewButtonsTemplate(
-								"",
-								"",
-								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+							linebot.NewCarouselTemplate(
+								linebot.NewCarouselColumn(
+									"",
+									"",
+									entity.QuestionMessageTitle[user.QuestionProgress],
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								),
+								linebot.NewCarouselColumn(
+									"",
+									"",
+									fmt.Sprint(entity.QuestionMessageTitle[user.QuestionProgress], "2"),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+									linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
+								),
 							),
 						),
 					).Do(); err != nil {
@@ -282,10 +306,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 							),
 						),
 						linebot.NewTemplateMessage(
@@ -294,9 +318,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][6]),
 							),
 						),
 					).Do(); err != nil {
@@ -320,10 +344,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 							),
 						),
 						linebot.NewTemplateMessage(
@@ -332,10 +356,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 								"",
 								"",
 								entity.QuestionMessageTitle[user.QuestionProgress],
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
-								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageSelection[user.QuestionProgress][7]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][6]),
+								linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][7]),
 							),
 						),
 					).Do(); err != nil {
@@ -574,6 +598,179 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					// 	})
 					// 	return ok, nil
 
+					// 年齢　    0:10代 1:20代 2:30代 3:40代 4:50代 5:60代以上
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 1
+					user.Age = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 1
+					user.Age = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					// DBにメッセージを保存する処理
+					user.QuestionProgress = 1
+					user.Age = 2
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+
+					return ok, nil
+
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][3]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 1
+					user.Age = 3
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][4]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 1
+					user.Age = 4
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+
+					return ok, nil
+				case entity.QuestionMessageTitle[0] + ":" + entity.QuestionMessageSelection[0][5]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 1
+					user.Age = 5
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+
+					return ok, nil
+
+					// 性別	0：男性　1：女性　2：その他
+				case entity.QuestionMessageTitle[1] + ":" + entity.QuestionMessageSelection[1][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 2
+					user.Gender = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+
+					return ok, nil
+
+				case entity.QuestionMessageTitle[1] + ":" + entity.QuestionMessageSelection[1][1]:
+
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 2
+					user.Gender = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[1] + ":" + entity.QuestionMessageSelection[1][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 2
+					user.Gender = 2
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+					// 0: 未婚　1: 既婚
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 2
+					user.Marriage = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 2
+					user.Marriage = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
 				}
 
 				if _, err := param.Bot.ReplyMessage(
@@ -652,8 +849,8 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -677,9 +874,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -703,10 +900,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -731,10 +928,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 // 				),
 // 			),
 // 			linebot.NewTemplateMessage(
@@ -743,7 +940,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -767,10 +964,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 // 				),
 // 			),
 // 			linebot.NewTemplateMessage(
@@ -779,8 +976,8 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -804,10 +1001,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 // 				),
 // 			),
 // 			linebot.NewTemplateMessage(
@@ -816,9 +1013,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][6]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -842,10 +1039,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageSelection[user.QuestionProgress][0]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageSelection[user.QuestionProgress][1]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageSelection[user.QuestionProgress][2]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageSelection[user.QuestionProgress][3]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][0], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][0]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][1], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][1]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][2], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][2]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][3], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][3]),
 // 				),
 // 			),
 // 			linebot.NewTemplateMessage(
@@ -854,10 +1051,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 					"",
 // 					"",
 // 					entity.QuestionMessageTitle[user.QuestionProgress],
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageSelection[user.QuestionProgress][4]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageSelection[user.QuestionProgress][5]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageSelection[user.QuestionProgress][6]),
-// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageSelection[user.QuestionProgress][7]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][4], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][4]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][5], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][5]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][6], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][6]),
+// 					linebot.NewMessageAction(entity.QuestionMessageSelection[user.QuestionProgress][7], entity.QuestionMessageTitle[user.QuestionProgress]+":"+entity.QuestionMessageSelection[user.QuestionProgress][7]),
 // 				),
 // 			),
 // 		).Do(); err != nil {
@@ -866,20 +1063,20 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 // 	}
 // }
 
-func convertPaymentServiceToStr(paymentService int) string {
-	// switch paymentService {
-	// case entity.PayPay:
-	// 	return "PayPay"
-	// case entity.LinePay:
-	// 	return "LINE Pay"
-	// case entity.MercariPay:
-	// 	return "メルペイ"
-	// case entity.Cash:
-	// 	return "現金"
-	// case entity.AmazonPay:
-	// 	return "Amazon Pay"
-	// case entity.RakutenPay:
-	// 	return "楽天ペイ"
-	// }
-	return "PayPay"
-}
+// func convertPaymentServiceToStr(paymentService int) string {
+// 	// switch paymentService {
+// 	// case entity.PayPay:
+// 	// 	return "PayPay"
+// 	// case entity.LinePay:
+// 	// 	return "LINE Pay"
+// 	// case entity.MercariPay:
+// 	// 	return "メルペイ"
+// 	// case entity.Cash:
+// 	// 	return "現金"
+// 	// case entity.AmazonPay:
+// 	// 	return "Amazon Pay"
+// 	// case entity.RakutenPay:
+// 	// 	return "楽天ペイ"
+// 	// }
+// 	return "PayPay"
+// }
