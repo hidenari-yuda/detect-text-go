@@ -1,5 +1,7 @@
 package usecase
 
+import "io"
+
 type Firebase interface {
 	VerifyIDToken(idToken string) (string, error)
 	GetCustomToken(uid string) (string, error)
@@ -9,6 +11,7 @@ type Firebase interface {
 	CreateUser(email, password string) (string, error)
 	UpdateEmail(email, uid string) error
 	UpdatePassword(password, uid string) error
+	UploadImage(content io.ReadCloser, messageId string) (string, error)
 }
 
 type Cache interface {

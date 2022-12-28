@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"strings"
-	"time"
 
 	vision "cloud.google.com/go/vision/apiv1"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
@@ -20,22 +18,30 @@ func CheckReceipt(
 	present *entity.Present,
 	err error) {
 
-	byteData, err := io.ReadAll(content)
-	if err != nil {
-		fmt.Println(err)
-		return receiptPicture, present, err
-	}
+	// byteData, err := io.ReadAll(content)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return receiptPicture, present, err
+	// }
 
-	filePath := fmt.Sprint(".public/snapshot/", time.Now().Format("20060102150405"), "-receipt.jpg") // ファイル名をユニークにする
+	// filePath := fmt.Sprint("./", time.Now().Format("20060102150405"), "-receipt.jpg") // ファイル名をユニークにする
 
-	err = os.WriteFile(filePath, byteData, 0644)
-	if err != nil {
-		fmt.Println("ファイルが書き出せません", err)
-		return receiptPicture, present, err
-	}
+	// err = os.WriteFile(filePath, byteData, 0777)
+	// if err != nil {
+	// 	fmt.Println("ファイルが書き出せません", err)
+	// 	return receiptPicture, present, err
+	// }
 
-	// io.Writer
-	// w := io.Writer(os.Stdout)
+	// // io.Writer
+	// // w := io.Writer(os.Stdout)
+
+	// file, err := os.Open(filePath)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return receiptPicture, present, err
+	// }
+	// defer file.Close()
+	// defer os.Remove(filePath)
 
 	ctx := context.Background()
 
@@ -45,15 +51,7 @@ func CheckReceipt(
 		return receiptPicture, present, err
 	}
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-		return receiptPicture, present, err
-	}
-	defer file.Close()
-	defer os.Remove(filePath)
-
-	image, err := vision.NewImageFromReader(file)
+	image, err := vision.NewImageFromReader(content)
 	if err != nil {
 		fmt.Println(err)
 		return receiptPicture, present, err
@@ -69,7 +67,6 @@ func CheckReceipt(
 		fmt.Println(err)
 		return receiptPicture, present, err
 	}
-	// receiptPicture.DetectedText = annotations[0].Description
 
 	for _, v := range receiptPictureList {
 		if receiptPicture.DetectedText == v.DetectedText {
@@ -101,13 +98,13 @@ func CheckReceipt(
 	var point int
 	// len := annotations[0].BoundingPoly.Vertices[2].X - annotations[0].BoundingPoly.Vertices[0].X
 	len := len(annotations[0].Description)
-	if len < 50 {
+	if len < 1000 {
 		point = 3
-	} else if len < 100 {
+	} else if len < 1500 {
 		point = 5
-	} else if len < 150 {
+	} else if len < 2000 {
 		point = 7
-	} else if len < 200 {
+	} else {
 		point = 10
 	}
 
@@ -117,6 +114,7 @@ func CheckReceipt(
 
 	receiptPicture = &entity.ReceiptPicture{
 		DetectedText: annotations[0].Description,
+		Point:        point,
 	}
 
 	if strMap["取引履歴"] || strMap["PayPay"] {

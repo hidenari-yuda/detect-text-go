@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS ads (
   click INT NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
-  PRIMARY KEY (id),
-  INDEX (user_id)
+  PRIMARY KEY (id)
 );
 
 -- +migrate Down

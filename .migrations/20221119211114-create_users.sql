@@ -14,9 +14,10 @@ CREATE TABLE IF NOT EXISTS users (
   gender INT NOT NULL DEFAULT 99, -- 0: 男性, 1: 女性 2: その他
   occupation INT NOT NULL DEFAULT 99, -- 0: 学生, 1: 会社員, 2: 自営業, 3: 公務員, 4: その他
   industry INT NOT NULL DEFAULT 99, -- 0: 農林水産業, 1: 鉱業, 2: 建設業, 3: 製造業, 4: 電気・ガス・熱供給・水道業, 5: 情報通信業, 6: 小売業, 7: 飲食業, 8: 金融業, 9: 不動産業, 10: サービス業, 11: 教育・学習支援業, 12: 医療・福祉, 13: 記録媒体の製作・配給, 14: 観光・宿泊業, 15: その他
-  livingWith INT NOT NULL DEFAULT 99, -- 0: 一人暮らし, 1: 二人暮らし, 2: 三人暮らし, 3: その他
+  living_with INT NOT NULL DEFAULT 99, -- 0: 一人暮らし, 1: 二人暮らし, 2: 三人暮らし, 3: その他
   marriage INT NOT NULL DEFAULT 99, -- 0: 未婚, 1: 既婚
   child INT NOT NULL DEFAULT 99, -- 0: 子供なし, 1: 子供あり
+  child_age INT NOT NULL DEFAULT 99, -- 0: 0歳, 1: 1歳, 2: 2歳, 3: 3歳, 4: 4歳, 5: 5歳, 6: 6歳, 7: 7歳, 8: 8歳, 9: 9歳, 10: 10歳, 11: 11歳, 12: 12歳, 13: 13歳, 14: 14歳, 15: 15歳, 16: 16歳, 17: 17歳, 18: 18歳以上
   annual_income INT NOT NULL DEFAULT 99, -- 0: 100万円台, 1: 200万円台, 2: 300万円台, 3: 400万円台, 4: 500万円台, 5: 600万円台, 6: 700万円台, 7: 800万円台, 8: 900万円台, 9: 1000万円以上
   point INT NOT NULL DEFAULT 0,
   line_name VARCHAR(255) NOT NULL,

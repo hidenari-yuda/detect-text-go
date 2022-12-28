@@ -6,23 +6,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"cloud.google.com/go/firestore"
+	"cloud.google.com/go/storage"
+	gcStorage "cloud.google.com/go/storage"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
+	"github.com/google/uuid"
 	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
 	"github.com/hidenari-yuda/paychan-server/usecase"
 	"github.com/pkg/errors"
+	gcContext "golang.org/x/net/context"
 	"google.golang.org/api/option"
 )
 
 type FirebaseImpl struct {
-	auth      *auth.Client
-	firestore *firestore.Client
-	webAPIKey string
+	auth       *auth.Client
+	firestore  *firestore.Client
+	storage    *storage.Client
+	client     *gcStorage.Client
+	bucketName string
+	webAPIKey  string
 }
 
 func NewFirebaseImpl(fbConfig config.Firebase) usecase.Firebase {
@@ -184,4 +193,51 @@ func (d *FirebaseImpl) UpdatePassword(password, uid string) error {
 	}
 
 	return err
+}
+
+func (d *FirebaseImpl) UploadImage(content io.ReadCloser, messageId string) (string, error) {
+	ctx := gcContext.Background()
+	bkt := d.client.Bucket(d.bucketName)
+	failureText := "画像の取得に失敗しました"
+
+	_, err := bkt.Attrs(ctx)
+	if err != nil {
+		// TODO: Handle error.
+		return failureText, err
+	}
+
+	fileName := fmt.Sprintf("ReceiptPicture/%s.jpeg", messageId)
+	obj := bkt.Object(fileName)
+
+	//create an id
+	id := uuid.New()
+
+	w := obj.NewWriter(ctx)
+
+	//Set the attribute （ダウンロードトークン付与）
+	w.ObjectAttrs.Metadata = map[string]string{"firebaseStorageDownloadTokens": id.String()}
+	w.ObjectAttrs.ACL = []gcStorage.ACLRule{
+		{
+			Entity: gcStorage.AllUsers,
+			Role:   gcStorage.RoleReader,
+		},
+	}
+
+	data, _ := ioutil.ReadAll(content)
+	w.Write(data)
+
+	// Close, just like writing a file.
+	if err := w.Close(); err != nil {
+		// TODO: Handle error.
+		return failureText, err
+	}
+
+	// urlを生成する処理
+	// 形式: https://firebasestorage.googleapis.com/v0/b/プロジェクト名.appspot.com/o/ファイルパス?alt=xxxx&token=xxxxx
+	fileURL := fmt.Sprintf(
+		"https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s",
+		d.bucketName, url.QueryEscape(fileName), id,
+	)
+
+	return fileURL, nil
 }

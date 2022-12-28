@@ -368,6 +368,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 				}
 
 				// レシート情報をdbに登録
+				receiptPicture.UserId = user.Id
+				receiptPicture.LineUserId = user.LineUserId
+
 				err = i.receiptPictureRepository.Create(receiptPicture)
 				if err != nil {
 					return ok, fmt.Errorf("レシート情報の登録エラー: %w", err)
@@ -416,7 +419,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 									"",
 									"準備中",
 									"実装までしばらく待ってペイ！",
-									// linebot.NewMessageAction("キャンペーン", "準備中"),
+									linebot.NewMessageAction("準備中", "準備中"),
 								),
 								// linebot.NewCarouselColumn(
 								// 	"",
