@@ -47,19 +47,19 @@ func CheckReceipt(
 
 	client, err := vision.NewImageAnnotatorClient(ctx)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("vision.NewImageAnnotatorClientでエラー: ", err)
 		return receiptPicture, present, err
 	}
 
 	image, err := vision.NewImageFromReader(content)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("vision.NewImageFromReaderでエラー", err)
 		return receiptPicture, present, err
 	}
 
 	annotations, err := client.DetectTexts(ctx, image, nil, 10)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("client.DetectTextsでエラー", err)
 		return receiptPicture, present, err
 	}
 
@@ -68,9 +68,11 @@ func CheckReceipt(
 		return receiptPicture, present, err
 	}
 
+	fmt.Println("detected text is:", annotations[0].Description)
+
 	for _, v := range receiptPictureList {
-		if receiptPicture.DetectedText == v.DetectedText {
-			fmt.Println(err)
+		if annotations[0].Description == v.DetectedText {
+			fmt.Println("テキストチェックエラー", err)
 			return receiptPicture, present, err
 		}
 	}
@@ -151,7 +153,6 @@ func CheckReceipt(
 	// receipt.ParchasedItems = append(receipt.ParchasedItems, parchasedItem)
 	// }
 
-	fmt.Println("detected text is:", annotations[0].Description)
 	fmt.Println("len is:", len)
 
 	// dbに保存

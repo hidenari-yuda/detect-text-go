@@ -168,7 +168,7 @@ func (r *UserRepositoryImpl) Update(user *entity.User) error {
 			occupation = ?,
 			industry = ?,
 			living_with = ?,
-			marrige = ?,
+			marriage = ?,
 			child = ?,
 			child_age = ?,
 			annual_income = ?,

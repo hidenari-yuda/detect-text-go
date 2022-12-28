@@ -47,6 +47,10 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					return ok, fmt.Errorf("今日登録されたレシートのリストの取得エラー: %w", err)
 				}
 
+				// for _, receiptPicture := range receiptPictures {
+				// 	fmt.Println("取得したレシート画像:", receiptPicture)
+				// }
+
 				// 10件以上の場合は、10件以上ある旨を通知する
 				if len(receiptPictures) > 10 {
 					if _, err = param.Bot.ReplyMessage(
