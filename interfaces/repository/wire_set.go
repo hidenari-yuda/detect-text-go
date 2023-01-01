@@ -7,7 +7,7 @@ var WireSet = wire.NewSet(
 	NewLineMessageRepositoryImpl,
 	NewPresentRepositoryImpl,
 	NewPaymentMethodRepositoryImpl,
-	NewAdRepositoryImpl,
+	NewCampaignRepositoryImpl,
 	NewQuestionRepositoryImpl,
 	NewQuestionSelectionRepositoryImpl,
 

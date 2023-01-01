@@ -24,7 +24,7 @@ type PresentInteractorImpl struct {
 	paymentMethodRepository  usecase.PaymentMethodRepository
 	presentRepository        usecase.PresentRepository
 	lineMessageRepository    usecase.LineMessageRepository
-	adRepository             usecase.AdRepository
+	campaignRepository       usecase.CampaignRepository
 }
 
 func NewPresentInteractorImpl(
@@ -36,7 +36,7 @@ func NewPresentInteractorImpl(
 	pmR usecase.PaymentMethodRepository,
 	pR usecase.PresentRepository,
 	lmR usecase.LineMessageRepository,
-	aR usecase.AdRepository,
+	cR usecase.CampaignRepository,
 ) PresentInteractor {
 	return &PresentInteractorImpl{
 		firebase:                 fb,
@@ -47,7 +47,7 @@ func NewPresentInteractorImpl(
 		paymentMethodRepository:  pmR,
 		presentRepository:        pR,
 		lineMessageRepository:    lmR,
-		adRepository:             aR,
+		campaignRepository:       cR,
 	}
 }
 

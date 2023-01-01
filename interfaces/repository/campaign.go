@@ -10,31 +10,31 @@ import (
 	"github.com/hidenari-yuda/paychan-server/usecase"
 )
 
-type AdRepositoryImpl struct {
+type CampaignRepositoryImpl struct {
 	Name     string
 	executer interfaces.SQLExecuter
 }
 
-// Create(param *entity.Ad) error
-// GetById(id int) (*entity.Ad, error)
-// GetListByUserId(userId int) ([]*entity.Ad, error)
-// GetListByLineUserId(lineUserId string) ([]*entity.Ad, error)
+// Create(param *entity.Campaign) error
+// GetById(id int) (*entity.Campaign, error)
+// GetListByUserId(userId int) ([]*entity.Campaign, error)
+// GetListByLineUserId(lineUserId string) ([]*entity.Campaign, error)
 
-func NewAdRepositoryImpl(ex interfaces.SQLExecuter) usecase.AdRepository {
-	return &AdRepositoryImpl{
-		Name:     "AdRepository",
+func NewCampaignRepositoryImpl(ex interfaces.SQLExecuter) usecase.CampaignRepository {
+	return &CampaignRepositoryImpl{
+		Name:     "CampaignRepository",
 		executer: ex,
 	}
 }
 
-func (r *AdRepositoryImpl) Create(param *entity.Ad) error {
+func (r *CampaignRepositoryImpl) Create(param *entity.Campaign) error {
 	_, err := r.executer.Exec(
 		r.Name+"Create",
-		`INSERT INTO ads (
+		`INSERT INTO campaigns (
 			uuid,
 			service,
 			url,
-			image_url,
+			picture_url,
 			price,
 			title,
 			description,
@@ -58,7 +58,7 @@ func (r *AdRepositoryImpl) Create(param *entity.Ad) error {
 		utility.CreateUUID(),
 		param.Service,
 		param.Url,
-		param.ImageUrl,
+		param.PictureUrl,
 		param.Price,
 		param.Title,
 		param.Description,
@@ -76,13 +76,13 @@ func (r *AdRepositoryImpl) Create(param *entity.Ad) error {
 }
 
 // update
-func (r *AdRepositoryImpl) Update(param *entity.Ad) error {
+func (r *CampaignRepositoryImpl) Update(param *entity.Campaign) error {
 	_, err := r.executer.Exec(
 		r.Name+"Update",
-		`UPDATE ads SET
+		`UPDATE campaigns SET
 			service = ?,
 			url = ?,
-			image_url = ?,
+			picture_url = ?,
 			price = ?,
 			title = ?,
 			description = ?,
@@ -93,7 +93,7 @@ func (r *AdRepositoryImpl) Update(param *entity.Ad) error {
 		`,
 		param.Service,
 		param.Url,
-		param.ImageUrl,
+		param.PictureUrl,
 		param.Price,
 		param.Title,
 		param.Description,
@@ -111,10 +111,10 @@ func (r *AdRepositoryImpl) Update(param *entity.Ad) error {
 }
 
 // updateImpression
-func (r *AdRepositoryImpl) UpdateImpression(param *entity.Ad) error {
+func (r *CampaignRepositoryImpl) UpdateImpression(param *entity.Campaign) error {
 	_, err := r.executer.Exec(
 		r.Name+"UpdateImpression",
-		`UPDATE ads SET
+		`UPDATE campaigns SET
 			impression = ?,
 			updated_at = ?
 			WHERE id = ?
@@ -132,10 +132,10 @@ func (r *AdRepositoryImpl) UpdateImpression(param *entity.Ad) error {
 }
 
 // updateClick
-func (r *AdRepositoryImpl) UpdateClick(param *entity.Ad) error {
+func (r *CampaignRepositoryImpl) UpdateClick(param *entity.Campaign) error {
 	_, err := r.executer.Exec(
 		r.Name+"UpdateClick",
-		`UPDATE ads SET
+		`UPDATE campaigns SET
 			click = ?,
 			updated_at = ?
 			WHERE id = ?
@@ -152,35 +152,35 @@ func (r *AdRepositoryImpl) UpdateClick(param *entity.Ad) error {
 	return nil
 }
 
-func (r *AdRepositoryImpl) GetById(id int) (*entity.Ad, error) {
+func (r *CampaignRepositoryImpl) GetById(id int) (*entity.Campaign, error) {
 	var (
-		Ad entity.Ad
+		Campaign entity.Campaign
 	)
 	err := r.executer.Get(
 		r.Name+"GetById",
-		&Ad,
-		"SELECT * FROM ads WHERE id = ?",
+		&Campaign,
+		"SELECT * FROM campaigns WHERE id = ?",
 		id,
 	)
 
 	if err != nil {
-		err = fmt.Errorf("failed to get Ad by firebase id: %w", err)
+		err = fmt.Errorf("failed to get Campaign by firebase id: %w", err)
 		fmt.Println(err)
 		return nil, err
 	}
 
-	return &Ad, nil
+	return &Campaign, nil
 }
 
-func (r *AdRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entity.Ad, error) {
+func (r *CampaignRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entity.Campaign, error) {
 	var (
-		AdList []*entity.Ad
+		CampaignList []*entity.Campaign
 	)
 	err := r.executer.Select(
 		r.Name+"GetListByLineUserId",
-		&AdList, `
+		&CampaignList, `
 		SELECT * 
-		FROM ads 
+		FROM campaigns 
 		WHERE user_id = (
 			SELECT id
 			FROM users
@@ -190,10 +190,10 @@ func (r *AdRepositoryImpl) GetListByLineUserId(lineUserId string) ([]*entity.Ad,
 	)
 
 	if err != nil {
-		err = fmt.Errorf("failed to get Ad by line Ad id: %w", err)
+		err = fmt.Errorf("failed to get Campaign by line Campaign id: %w", err)
 		fmt.Println(err)
 		return nil, err
 	}
 
-	return AdList, nil
+	return CampaignList, nil
 }

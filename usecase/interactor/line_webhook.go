@@ -484,20 +484,14 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
 						linebot.NewTextMessage(fmt.Sprintf("保有ポイントは %v ポイントだペイ！", user.Point)),
-					).Do(); err != nil {
-						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
-					}
-
-					if _, err := param.Bot.ReplyMessage(
-						event.ReplyToken,
 						linebot.NewTemplateMessage(
 							"下のボタンから還元する方法を選べるペイ！",
 							linebot.NewCarouselTemplate(
 								linebot.NewCarouselColumn(
 									"",
-									"PayPayポイントに還元",
-									"還元",
-									linebot.NewMessageAction("PayPayポイントに還元", "PayPayポイントに還元"),
+									"",
+									"100ポイントをPayPayポイントに還元",
+									linebot.NewMessageAction("ギフトURLを受け取る", "100ポイントをPayPayポイントに還元"),
 								),
 							),
 						),
@@ -506,9 +500,9 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					}
 					return ok, nil
 
-				case "PayPayポイントに還元":
+				case "100ポイントをPayPayポイントに還元":
 					presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
-						Point:          user.Point,
+						Point:          100,
 						PaymentService: 0,
 					})
 					if err != nil || presentList == nil || len(presentList) == 0 {

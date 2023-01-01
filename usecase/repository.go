@@ -79,15 +79,15 @@ type PresentRepository interface {
 	DeleteByExpired() error
 }
 
-type AdRepository interface {
+type CampaignRepository interface {
 	// Gest API
-	Create(param *entity.Ad) error
-	Update(param *entity.Ad) error
-	UpdateImpression(param *entity.Ad) error
-	UpdateClick(param *entity.Ad) error
-	GetById(id int) (*entity.Ad, error)
+	Create(param *entity.Campaign) error
+	Update(param *entity.Campaign) error
+	UpdateImpression(param *entity.Campaign) error
+	UpdateClick(param *entity.Campaign) error
+	GetById(id int) (*entity.Campaign, error)
 	// GetListByUserId(userId int) ([]*entity.Asp, error)
-	GetListByLineUserId(lineUserId string) ([]*entity.Ad, error)
+	GetListByLineUserId(lineUserId string) ([]*entity.Campaign, error)
 }
 
 type QuestionRepository interface {

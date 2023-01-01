@@ -36,8 +36,8 @@ func InitializeUserHandler(db interfaces.SQLExecuter, fb usecase.Firebase) handl
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
 	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
-	adRepository := repository.NewAdRepositoryImpl(db)
-	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, adRepository)
+	campaignRepository := repository.NewCampaignRepositoryImpl(db)
+	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, campaignRepository)
 	userHandler := handler.NewUserHandlerImpl(userInteractor)
 	return userHandler
 }
@@ -52,8 +52,8 @@ func InitializePresentHandler(db interfaces.SQLExecuter, fb usecase.Firebase) ha
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
 	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
-	adRepository := repository.NewAdRepositoryImpl(db)
-	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, adRepository)
+	campaignRepository := repository.NewCampaignRepositoryImpl(db)
+	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, campaignRepository)
 	presentHandler := handler.NewPresentHandlerImpl(presentInteractor)
 	return presentHandler
 }
@@ -75,8 +75,8 @@ func InitializeUserInteractor(db interfaces.SQLExecuter, fb usecase.Firebase) in
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
 	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
-	adRepository := repository.NewAdRepositoryImpl(db)
-	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, adRepository)
+	campaignRepository := repository.NewCampaignRepositoryImpl(db)
+	userInteractor := interactor.NewUserInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, campaignRepository)
 	return userInteractor
 }
 
@@ -90,8 +90,8 @@ func InitializePresentInteractor(db interfaces.SQLExecuter, fb usecase.Firebase)
 	paymentMethodRepository := repository.NewPaymentMethodRepositoryImpl(db)
 	presentRepository := repository.NewPresentRepositoryImpl(db)
 	lineMessageRepository := repository.NewLineMessageRepositoryImpl(db)
-	adRepository := repository.NewAdRepositoryImpl(db)
-	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, adRepository)
+	campaignRepository := repository.NewCampaignRepositoryImpl(db)
+	presentInteractor := interactor.NewPresentInteractorImpl(fb, userRepository, receiptPictureRepository, receiptRepository, parchasedItemRepository, paymentMethodRepository, presentRepository, lineMessageRepository, campaignRepository)
 	return presentInteractor
 }
 
