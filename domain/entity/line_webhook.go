@@ -11,5 +11,6 @@ type LineWebHook struct {
 	Events             []*linebot.Event
 	ChannelSecret      string
 	ChannelAccessToken string
+	AdminUserId        string
 	Request            *http.Request
 }

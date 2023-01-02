@@ -3,7 +3,6 @@ package interactor
 import (
 	"fmt"
 
-	"github.com/hidenari-yuda/paychan-server/domain/config"
 	"github.com/hidenari-yuda/paychan-server/domain/entity"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -501,20 +500,23 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					return ok, nil
 
 				case "100ポイントをPayPayポイントに還元":
+					if user.Point < 100 {
+						if _, err := param.Bot.ReplyMessage(
+							event.ReplyToken,
+							linebot.NewTextMessage("ポイントが足りないペイ！"),
+						).Do(); err != nil {
+							return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+						}
+						return ok, nil
+					}
+
 					presentList, err := i.presentRepository.GetByPointAndService(&entity.Present{
 						Point:          100,
 						PaymentService: 0,
 					})
 					if err != nil || presentList == nil || len(presentList) == 0 {
-						// エラー処理
-						cfg, err := config.New()
-						botToAdmin, err := linebot.New(
-							cfg.Line.ChannelSecret,
-							cfg.Line.ChannelAccessToken,
-						)
-
-						if _, eff := botToAdmin.PushMessage(
-							cfg.Line.AdminUserId,
+						if _, eff := param.Bot.PushMessage(
+							param.AdminUserId,
 							linebot.NewTextMessage(
 								fmt.Sprintf(
 									"プレゼントが取得できませんでした。\n\n・対象ユーザー\n お名前:%sさん\n一言:%s\nレシートの金額:%d\n支払いサービス:%s。エラー内容:%v",
@@ -528,26 +530,32 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						).Do(); eff != nil {
 							return ok, fmt.Errorf("プレゼント取得通知のリプライエラー: %w", err)
 						}
+
+						return ok, nil
 					}
 
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
-						linebot.NewTextMessage("PayPayポイントはこちらから確認できるペイ！\nhttps://paypay.ne.jp/point/"),
+						linebot.NewTextMessage(fmt.Sprintf(
+							"PayPayポイントはこちらから確認できるペイ！\n%v",
+							presentList[0].Url,
+						),
+						),
 					).Do(); err != nil {
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
 
-					for _, present := range presentList {
-						// ギフトをdbに保存する
-						err = i.presentRepository.Update(&entity.Present{
-							Id:     present.Id,
-							UserId: user.Id,
-							// ReceiptPictureId: receiptPicture.Id,
-							Point:          present.Point,
-							PaymentService: present.PaymentService,
-							Url:            present.Url,
-						})
+					// for _, present := range presentList {
+					// ギフトをdbに保存する
+					presentList[0].Used = true
+					err = i.presentRepository.Update(presentList[0])
+
+					user.Point -= 100
+					err = i.userRepository.Update(user)
+					if err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
+					// }
 					return ok, nil
 
 					// case "LINEPayポイントに還元":
@@ -741,7 +749,7 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 					err = i.userRepository.Update(user)
 					return ok, nil
 
-					// 0: 未婚　1: 既婚
+					// 	[]string{"100万円台", "200万円台", "300万円台", "400万円台", "500万円台", "600万円台", "700万円台", "800万円以上"},
 				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][0]:
 					if _, err := param.Bot.ReplyMessage(
 						event.ReplyToken,
@@ -750,8 +758,8 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
 
-					user.QuestionProgress = 2
-					user.Marriage = 0
+					user.QuestionProgress = 3
+					user.AnnualIncome = 0
 
 					// DBにメッセージを保存する処理
 					err = i.userRepository.Update(user)
@@ -765,8 +773,440 @@ func (i *UserInteractorImpl) GetLineWebHook(param *entity.LineWebHook) (ok bool,
 						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
 					}
 
-					user.QuestionProgress = 2
+					user.QuestionProgress = 3
+					user.AnnualIncome = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 2
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][3]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 3
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][4]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 4
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][5]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 5
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][6]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 6
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[2] + ":" + entity.QuestionMessageSelection[2][7]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 3
+					user.AnnualIncome = 7
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+					//	[]string{"会社員（一般）", "会社員（管理職）", "会社経営（経営者・役員）", "公務員", "派遣社員・契約社員", "学生", "主婦", "その他"},
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 2
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][3]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 3
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][4]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 4
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][5]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 5
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][6]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 6
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[3] + ":" + entity.QuestionMessageSelection[3][7]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 4
+					user.Occupation = 7
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+					//	[]string{"IT・通信", "金融・保険", "小売・サービス", "製造・メーカー", "運輸", "電気・ガス", "不動産・建築", "その他"},
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 2
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][3]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 3
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][4]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 4
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][5]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 5
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][6]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 6
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[4] + ":" + entity.QuestionMessageSelection[4][7]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 5
+					user.Industry = 7
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[5] + ":" + entity.QuestionMessageSelection[5][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 6
+					user.Marriage = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[5] + ":" + entity.QuestionMessageSelection[5][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 6
 					user.Marriage = 1
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[6] + ":" + entity.QuestionMessageSelection[6][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 7
+					user.LivingWith = 0
+				case entity.QuestionMessageTitle[6] + ":" + entity.QuestionMessageSelection[6][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 7
+					user.LivingWith = 1
+				case entity.QuestionMessageTitle[6] + ":" + entity.QuestionMessageSelection[6][2]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 7
+					user.LivingWith = 2
+				case entity.QuestionMessageTitle[6] + ":" + entity.QuestionMessageSelection[6][3]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 7
+					user.LivingWith = 3
+				case entity.QuestionMessageTitle[6] + ":" + entity.QuestionMessageSelection[6][4]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 7
+					user.LivingWith = 4
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+
+				case entity.QuestionMessageTitle[7] + ":" + entity.QuestionMessageSelection[7][0]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 8
+					user.Child = 0
+
+					// DBにメッセージを保存する処理
+					err = i.userRepository.Update(user)
+					return ok, nil
+				case entity.QuestionMessageTitle[7] + ":" + entity.QuestionMessageSelection[7][1]:
+					if _, err := param.Bot.ReplyMessage(
+						event.ReplyToken,
+						linebot.NewTextMessage("ご回答ありがペイ！\n"+"またレシートの画像を送信してみてペイ！"),
+					).Do(); err != nil {
+						return ok, fmt.Errorf("EventTypeMessageのReplyMessageでエラー: %v", err)
+					}
+
+					user.QuestionProgress = 8
+					user.Child = 1
 
 					// DBにメッセージを保存する処理
 					err = i.userRepository.Update(user)

@@ -210,6 +210,7 @@ func (r *UserRoutes) GetLineWebHook(db *database.DB, firebase usecase.Firebase) 
 			Events:             events,
 			ChannelSecret:      cfg.Line.ChannelSecret,
 			ChannelAccessToken: cfg.Line.ChannelAccessToken,
+			AdminUserId:        cfg.Line.AdminUserId,
 			Request:            req,
 		}
 
